@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <thread>
 
-int saw(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
+int audioCallback(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
         double streamTime, RtAudioStreamStatus status, void *userData)
 {
     double *buffer = (double *)outputBuffer;
@@ -32,7 +32,7 @@ int main()
     try
     {
         dac.openStream(&parameters, NULL, RTAUDIO_FLOAT64,
-                       sampleRate, &bufferFrames, &saw, (void *)&data);
+                       sampleRate, &bufferFrames, &audioCallback, (void *)&data);
         dac.startStream();
     }
     catch (RtAudioError &e)
