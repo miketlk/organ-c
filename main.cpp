@@ -2,15 +2,61 @@
 #include <iostream>
 #include <cstdlib>
 #include <thread>
+#include <sndfile.hh>
+#include <cstring>
+
+class Sound
+{
+public:
+    std::string fname;
+    int midnote, channel, rate, loop, nframes;
+    double *data;
+    void init(std::string filename, bool release, int midinote);
+};
+
+void Sound::init(std::string filename, bool release, int midinote)
+{
+    SNDFILE *wf;
+    SF_INFO inFileInfo;
+
+    channel = 0;
+
+    wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
+
+    SF_INSTRUMENT inst;
+    sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
+
+    if (release == false && inst.loop_count > 0)
+    {
+        loop = inst.loops[0].start;
+        nframes = inst.loops[0].end;
+    }
+    else
+    {
+        loop = -1;
+        nframes = inFileInfo.frames;
+    }
+
+    data = (double *)malloc((nframes * 2) * sizeof(double));
+    sf_read_double(wf, data, nframes * 2);
+
+    rate = inFileInfo.samplerate;
+
+    sf_close(wf);
+};
 
 int audioCallback(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
-        double streamTime, RtAudioStreamStatus status, void *userData)
+                  double streamTime, RtAudioStreamStatus status, void *userData)
 {
     double *buffer = (double *)outputBuffer;
-    if (status)
-        std::cout << "Stream underflow detected!" << std::endl;
-
+    memset(buffer, 0, sizeof(double) * nBufferFrames * 2);
     return 0;
+}
+
+void loadSamples()
+{
+    Sound test;
+    test.init("test.wav", false, 36);
 }
 
 int main()
@@ -27,8 +73,12 @@ int main()
     parameters.nChannels = 2;
     parameters.firstChannel = 0;
     unsigned int sampleRate = 192000;
-    unsigned int bufferFrames = 256;
+    unsigned int bufferFrames = 512;
     double data[2];
+    std::thread loadingThread(loadSamples);
+    const auto processor_count = std::thread::hardware_concurrency();
+    std::cout << processor_count << std::endl;
+    loadingThread.join();
     try
     {
         dac.openStream(&parameters, NULL, RTAUDIO_FLOAT64,
