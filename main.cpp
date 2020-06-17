@@ -45,11 +45,15 @@ void Sound::init(std::string filename, bool release, int midinote)
     sf_close(wf);
 };
 
+std::vector<Sound> sounds;
+std::vector<double *> storedData;
+
 int audioCallback(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
                   double streamTime, RtAudioStreamStatus status, void *userData)
 {
     double *buffer = (double *)outputBuffer;
     memset(buffer, 0, sizeof(double) * nBufferFrames * 2);
+
     return 0;
 }
 
@@ -57,6 +61,7 @@ void loadSamples()
 {
     Sound test;
     test.init("test.wav", false, 36);
+    sounds.push_back(test);
 }
 
 int main()
@@ -68,17 +73,19 @@ int main()
         exit(0);
     }
 
+    const auto processor_count = std::thread::hardware_concurrency();
+    std::cout << processor_count << std::endl;
+
     RtAudio::StreamParameters parameters;
     parameters.deviceId = dac.getDefaultOutputDevice();
     parameters.nChannels = 2;
     parameters.firstChannel = 0;
     unsigned int sampleRate = 192000;
-    unsigned int bufferFrames = 512;
+    unsigned int bufferFrames = 1024;
     double data[2];
     std::thread loadingThread(loadSamples);
-    const auto processor_count = std::thread::hardware_concurrency();
-    std::cout << processor_count << std::endl;
     loadingThread.join();
+
     try
     {
         dac.openStream(&parameters, NULL, RTAUDIO_FLOAT64,
