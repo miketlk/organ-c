@@ -17,10 +17,10 @@
 #define M_PI (3.14159265)
 #endif
 
-std::vector<double> samples;
+std::vector<float> samples;
 int pos = 0;
 
-double buffer[FRAMES_PER_BUFFER];
+float buffer[FRAMES_PER_BUFFER];
 int fillBuffer = 1;
 
 static int patestCallback(const void *inputBuffer, void *outputBuffer,
@@ -36,9 +36,9 @@ static int patestCallback(const void *inputBuffer, void *outputBuffer,
     (void)statusFlags;
     (void)inputBuffer;
 
-    double val;
+    float val;
 
-    double inbuffer[framesPerBuffer];
+    float inbuffer[framesPerBuffer];
 
     std::copy(std::begin(buffer), std::end(buffer), inbuffer);
 
@@ -59,7 +59,7 @@ void testFunction()
 {
     unsigned long i;
 
-    double val;
+    float val;
     std::unique_ptr<SO_BUTTERWORTH_LPF> filter (new SO_BUTTERWORTH_LPF);
     while (true)
     {
@@ -104,14 +104,14 @@ int main(void)
 
     nframes = inFileInfo.frames * inFileInfo.channels;
 
-    double data[nframes];
+    float data[nframes];
 
-    sf_read_double(wf, data, nframes);
+    sf_read_float(wf, data, nframes);
 
     sf_close(wf);
 
     samples.resize(nframes);
-    memcpy(&samples[0], data, nframes * sizeof(double));
+    memcpy(&samples[0], data, nframes * sizeof(float));
 
     std::thread t1(testFunction);
 
