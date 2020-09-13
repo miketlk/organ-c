@@ -1,117 +1,171 @@
-#include "RtAudio.h"
+#include <stdio.h>
 #include <iostream>
-#include <cstdlib>
-#include <thread>
 #include <sndfile.hh>
+#include "portaudio.h"
+#include "pa_linux_alsa.h"
+#include <thread>
+#include <vector>
 #include <cstring>
 
-class Sound
-{
-public:
-    std::string fname;
-    int midnote, channel, rate, loop, nframes;
-    double *data;
-    void init(std::string filename, bool release, int midinote);
-};
+#define SAMPLE_RATE (48000)
+#define FRAMES_PER_BUFFER (256)
 
-void Sound::init(std::string filename, bool release, int midinote)
+#ifndef M_PI
+#define M_PI (3.14159265)
+#endif
+
+std::vector<double> samples;
+int pos = 0;
+
+double buffer[FRAMES_PER_BUFFER];
+int fillBuffer = 1;
+
+static int patestCallback(const void *inputBuffer, void *outputBuffer,
+                          unsigned long framesPerBuffer,
+                          const PaStreamCallbackTimeInfo *timeInfo,
+                          PaStreamCallbackFlags statusFlags,
+                          void *userData)
 {
+    float *out = (float *)outputBuffer;
+    unsigned long i;
+
+    (void)timeInfo;
+    (void)statusFlags;
+    (void)inputBuffer;
+
+    double val;
+
+    double inbuffer[framesPerBuffer];
+
+    std::copy(std::begin(buffer), std::end(buffer), inbuffer);
+
+    if (fillBuffer == 0)
+    {
+        fillBuffer = 1;
+    }
+
+    for (i = 0; i < framesPerBuffer; i++)
+    {
+        val = inbuffer[i];
+        *out++ = val;
+    }
+
+    return paContinue;
+}
+
+void testFunction()
+{
+    unsigned long i;
+
+    double val;
+    while (true)
+    {
+        if (fillBuffer == 1)
+        {
+            fillBuffer = 0;
+
+            if (samples.size() > 0)
+            {
+                if (pos > samples.size() - FRAMES_PER_BUFFER)
+                {
+                    pos = 0;
+                }
+                for (i = 0; i < FRAMES_PER_BUFFER; i++)
+                {
+                    val = samples.at(pos + i);
+                    buffer[i] = val;
+                }
+                pos += FRAMES_PER_BUFFER;
+            }
+        }
+    }
+}
+
+int main(void);
+int main(void)
+{
+    PaStreamParameters outputParameters;
+    PaStream *stream;
+    PaAlsaStreamInfo info;
+    PaError err;
+
     SNDFILE *wf;
     SF_INFO inFileInfo;
-
-    channel = 0;
-
-    wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
-
     SF_INSTRUMENT inst;
+    int nframes;
+
+    wf = sf_open("test.wav", SFM_READ, &inFileInfo);
+
     sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
 
-    if (release == false && inst.loop_count > 0)
-    {
-        loop = inst.loops[0].start;
-        nframes = inst.loops[0].end;
-    }
-    else
-    {
-        loop = -1;
-        nframes = inFileInfo.frames;
-    }
+    nframes = inFileInfo.frames * inFileInfo.channels;
 
-    data = (double *)malloc((nframes * 2) * sizeof(double));
-    sf_read_double(wf, data, nframes * 2);
+    double data[nframes];
 
-    rate = inFileInfo.samplerate;
+    sf_read_double(wf, data, nframes);
 
     sf_close(wf);
-};
 
-std::vector<Sound> sounds;
-std::vector<double *> storedData;
+    samples.resize(nframes);
+    memcpy(&samples[0], data, nframes * sizeof(double));
 
-int audioCallback(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
-                  double streamTime, RtAudioStreamStatus status, void *userData)
-{
-    double *buffer = (double *)outputBuffer;
-    memset(buffer, 0, sizeof(double) * nBufferFrames * 2);
+    std::thread t1(testFunction);
 
-    return 0;
-}
+    PaAlsa_InitializeStreamInfo(&info);
 
-void loadSamples()
-{
-    Sound test;
-    test.init("test.wav", false, 36);
-    sounds.push_back(test);
-}
+    err = Pa_Initialize();
+    if (err != paNoError)
+        goto error;
 
-int main()
-{
-    RtAudio dac;
-    if (dac.getDeviceCount() < 1)
+    outputParameters.device = 9; /* default output device */
+    if (outputParameters.device == paNoDevice)
     {
-        std::cout << "\nNo audio devices found!\n";
-        exit(0);
+        fprintf(stderr, "Error: The selected audio device could not be found.\n");
+        goto error;
+    }
+    outputParameters.channelCount = 1;         /* stereo output */
+    outputParameters.sampleFormat = paFloat32; /* 32 bit floating point output */
+    outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
+    outputParameters.hostApiSpecificStreamInfo = NULL;
+
+    PaAlsa_EnableRealtimeScheduling(&stream, true);
+
+    err = Pa_OpenStream(
+        &stream,
+        NULL,
+        &outputParameters,
+        SAMPLE_RATE,
+        FRAMES_PER_BUFFER,
+        paClipOff,
+        patestCallback,
+        &data);
+    if (err != paNoError)
+        goto error;
+
+    err = Pa_StartStream(stream);
+    if (err != paNoError)
+        goto error;
+
+    while (true)
+    {
+        Pa_Sleep(5000);
     }
 
-    const auto processor_count = std::thread::hardware_concurrency();
-    std::cout << processor_count << std::endl;
+    err = Pa_StopStream(stream);
+    if (err != paNoError)
+        goto error;
 
-    RtAudio::StreamParameters parameters;
-    parameters.deviceId = dac.getDefaultOutputDevice();
-    parameters.nChannels = 2;
-    parameters.firstChannel = 0;
-    unsigned int sampleRate = 192000;
-    unsigned int bufferFrames = 1024;
-    double data[2];
-    std::thread loadingThread(loadSamples);
-    loadingThread.join();
+    err = Pa_CloseStream(stream);
+    if (err != paNoError)
+        goto error;
 
-    try
-    {
-        dac.openStream(&parameters, NULL, RTAUDIO_FLOAT64,
-                       sampleRate, &bufferFrames, &audioCallback, (void *)&data);
-        dac.startStream();
-    }
-    catch (RtAudioError &e)
-    {
-        e.printMessage();
-        exit(0);
-    }
+    Pa_Terminate();
 
-    char input;
-    std::cout << "\nPlaying ... press <enter> to quit.\n";
-    std::cin.get(input);
-    try
-    {
-        dac.stopStream();
-    }
-    catch (RtAudioError &e)
-    {
-        e.printMessage();
-    }
-
-    if (dac.isStreamOpen())
-        dac.closeStream();
-
-    return 0;
+    return err;
+error:
+    Pa_Terminate();
+    fprintf(stderr, "An error occured while using the portaudio stream\n");
+    fprintf(stderr, "Error number: %d\n", err);
+    fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
+    return err;
 }

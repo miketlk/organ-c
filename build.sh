@@ -1,1 +1,1 @@
-g++ -Wall -D__LINUX_ALSA__ -o organ.app main.cpp RtAudio.cpp -lsndfile -lasound -lpthread
+g++ main.cpp libportaudio.a -lrt -lasound -ljack -pthread -lsndfile -o organ.app
