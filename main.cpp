@@ -49,7 +49,6 @@ static int patestCallback(const void *inputBuffer, void *outputBuffer,
         val = inbuffer[i];
         *out++ = val;
     }
-
     return paContinue;
 }
 
