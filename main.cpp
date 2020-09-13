@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <sndfile.hh>
+#include <samplerate.h>
 #include "portaudio.h"
 #include "pa_linux_alsa.h"
 #include <thread>
@@ -12,6 +13,7 @@
 
 #define SAMPLE_RATE (48000)
 #define FRAMES_PER_BUFFER (256)
+#define SAMPLE_SILENCE  (0.0f)
 
 #ifndef M_PI
 #define M_PI (3.14159265)
@@ -20,7 +22,7 @@
 std::vector<float> samples;
 int pos = 0;
 
-float buffer[FRAMES_PER_BUFFER];
+std::vector<std::vector<float>> buffers;
 int fillBuffer = 1;
 
 static int patestCallback(const void *inputBuffer, void *outputBuffer,
@@ -40,7 +42,7 @@ static int patestCallback(const void *inputBuffer, void *outputBuffer,
 
     float inbuffer[framesPerBuffer];
 
-    std::copy(std::begin(buffer), std::end(buffer), inbuffer);
+    std::copy(std::begin(buffer[0]), std::end(buffer[0]), inbuffer);
 
     if (fillBuffer == 0)
     {
@@ -60,16 +62,12 @@ void testFunction()
     unsigned long i;
 
     float val;
-    std::unique_ptr<SO_BUTTERWORTH_LPF> filter (new SO_BUTTERWORTH_LPF);
     while (true)
     {
         if (fillBuffer == 1)
         {
-            fillBuffer = 0;
-
             if (samples.size() > 0)
             {
-                filter->calculate_coeffs(500, 48000);
                 if (pos > samples.size() - FRAMES_PER_BUFFER)
                 {
                     pos = 0;
@@ -77,10 +75,11 @@ void testFunction()
                 for (i = 0; i < FRAMES_PER_BUFFER; i++)
                 {
                     val = samples.at(pos + i);
-                    buffer[i] = filter->process(val);
+                    buffers.at(0)[i] = val;
                 }
                 pos += FRAMES_PER_BUFFER;
             }
+            fillBuffer = 0;
         }
     }
 }
