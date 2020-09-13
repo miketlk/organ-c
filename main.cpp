@@ -6,6 +6,9 @@
 #include <thread>
 #include <vector>
 #include <cstring>
+#include <memory>
+#include "filter_common.h"
+#include "filter_includes.h"
 
 #define SAMPLE_RATE (48000)
 #define FRAMES_PER_BUFFER (256)
@@ -57,6 +60,7 @@ void testFunction()
     unsigned long i;
 
     double val;
+    std::unique_ptr<SO_BUTTERWORTH_LPF> filter (new SO_BUTTERWORTH_LPF);
     while (true)
     {
         if (fillBuffer == 1)
@@ -65,6 +69,7 @@ void testFunction()
 
             if (samples.size() > 0)
             {
+                filter->calculate_coeffs(500, 48000);
                 if (pos > samples.size() - FRAMES_PER_BUFFER)
                 {
                     pos = 0;
@@ -72,7 +77,7 @@ void testFunction()
                 for (i = 0; i < FRAMES_PER_BUFFER; i++)
                 {
                     val = samples.at(pos + i);
-                    buffer[i] = val;
+                    buffer[i] = filter->process(val);
                 }
                 pos += FRAMES_PER_BUFFER;
             }

@@ -1,1 +1,1 @@
-g++ main.cpp libportaudio.a -lrt -lasound -ljack -pthread -lsndfile -std=c++11 -o organ.app
+g++ main.cpp libportaudio.a -I./lib -lrt -lasound -ljack -pthread -lsndfile -std=c++11 -o organ.app
