@@ -42,7 +42,7 @@ static int patestCallback(const void *inputBuffer, void *outputBuffer,
 
     float inbuffer[framesPerBuffer];
 
-    std::copy(std::begin(buffer[0]), std::end(buffer[0]), inbuffer);
+    std::copy(std::begin(buffers[0]), std::end(buffers[0]), inbuffer);
 
     if (fillBuffer == 0)
     {
