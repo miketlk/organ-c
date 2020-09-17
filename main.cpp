@@ -38,10 +38,13 @@ static int patestCallback(const void *inputBuffer, void *outputBuffer,
 int main(void);
 int main(void)
 {
+    PaAlsaStreamInfo info;
     PaStreamParameters outputParameters;
     PaStream *stream;
-    PaAlsaStreamInfo info;
+    
     PaError err;
+
+    SF_INSTRUMENT inst;
 
     PaAlsa_InitializeStreamInfo(&info);
     PaAlsa_EnableRealtimeScheduling(&stream, true);
@@ -52,7 +55,7 @@ int main(void)
     if (err != paNoError)
         goto error;
 
-    outputParameters.device = 9; /* default output device */
+    outputParameters.device = 0; /* default output device */
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
