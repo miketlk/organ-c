@@ -15,6 +15,16 @@
 #define FRAMES_PER_BUFFER (256)
 #define SAMPLE_SILENCE  (0.0f)
 
+#ifndef M_PI
+#define M_PI (3.14159265)
+#endif
+
+std::vector<float> samples;
+int pos = 0;
+
+std::vector<std::vector<float>> buffers;
+int fillBuffer = 1;
+
 static int patestCallback(const void *inputBuffer, void *outputBuffer,
                           unsigned long framesPerBuffer,
                           const PaStreamCallbackTimeInfo *timeInfo,
@@ -28,11 +38,50 @@ static int patestCallback(const void *inputBuffer, void *outputBuffer,
     (void)statusFlags;
     (void)inputBuffer;
 
+    float val;
+
+    float inbuffer[framesPerBuffer];
+
+    std::copy(std::begin(buffers[0]), std::end(buffers[0]), inbuffer);
+
+    if (fillBuffer == 0)
+    {
+        fillBuffer = 1;
+    }
+
     for (i = 0; i < framesPerBuffer; i++)
     {
-
+        val = inbuffer[i];
+        *out++ = val;
     }
     return paContinue;
+}
+
+void testFunction()
+{
+    unsigned long i;
+
+    float val;
+    while (true)
+    {
+        if (fillBuffer == 1)
+        {
+            if (samples.size() > 0)
+            {
+                if (pos > samples.size() - FRAMES_PER_BUFFER)
+                {
+                    pos = 0;
+                }
+                for (i = 0; i < FRAMES_PER_BUFFER; i++)
+                {
+                    val = samples.at(pos + i);
+                    buffers.at(0)[i] = val;
+                }
+                pos += FRAMES_PER_BUFFER;
+            }
+            fillBuffer = 0;
+        }
+    }
 }
 
 int main(void);
@@ -43,10 +92,29 @@ int main(void)
     PaAlsaStreamInfo info;
     PaError err;
 
-    PaAlsa_InitializeStreamInfo(&info);
-    PaAlsa_EnableRealtimeScheduling(&stream, true);
+    SNDFILE *wf;
+    SF_INFO inFileInfo;
+    SF_INSTRUMENT inst;
+    int nframes;
 
-    int data = 1;
+    wf = sf_open("test.wav", SFM_READ, &inFileInfo);
+
+    sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
+
+    nframes = inFileInfo.frames * inFileInfo.channels;
+
+    float data[nframes];
+
+    sf_read_float(wf, data, nframes);
+
+    sf_close(wf);
+
+    samples.resize(nframes);
+    memcpy(&samples[0], data, nframes * sizeof(float));
+
+    std::thread t1(testFunction);
+
+    PaAlsa_InitializeStreamInfo(&info);
 
     err = Pa_Initialize();
     if (err != paNoError)
@@ -62,6 +130,8 @@ int main(void)
     outputParameters.sampleFormat = paFloat32; /* 32 bit floating point output */
     outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = NULL;
+
+    PaAlsa_EnableRealtimeScheduling(&stream, true);
 
     err = Pa_OpenStream(
         &stream,
