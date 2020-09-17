@@ -61,7 +61,6 @@ int main(void)
     int data = 1;
 
     RtMidiIn *midiin = new RtMidiIn();
-    // Check available ports.
     unsigned int nPorts = midiin->getPortCount();
     if (nPorts == 0)
     {
@@ -70,13 +69,15 @@ int main(void)
 
     err = Pa_Initialize();
     if (err != paNoError)
-        goto error;
+    {
+        fprintf(stderr, "Error number: %d\n", err);
+        fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
+    }
 
     outputParameters.device = 0; /* default output device */
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
-        goto error;
     }
     outputParameters.channelCount = 1;         /* stereo output */
     outputParameters.sampleFormat = paFloat32; /* 32 bit floating point output */
@@ -93,16 +94,22 @@ int main(void)
         patestCallback,
         &data);
     if (err != paNoError)
-        goto error;
+    {
+        fprintf(stderr, "Error number: %d\n", err);
+        fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
+    }
 
     err = Pa_StartStream(stream);
     if (err != paNoError)
-        goto error;
+    {
+        fprintf(stderr, "Error number: %d\n", err);
+        fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
+    }
 
-    midiin->openPort(0);
+    midiin->openPort(1);
     midiin->setCallback(&mycallback);
     midiin->ignoreTypes(false, false, false);
-    
+
     while (true)
     {
         Pa_Sleep(5000);
@@ -110,19 +117,19 @@ int main(void)
 
     err = Pa_StopStream(stream);
     if (err != paNoError)
-        goto error;
+    {
+        fprintf(stderr, "Error number: %d\n", err);
+        fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
+    }
 
     err = Pa_CloseStream(stream);
     if (err != paNoError)
-        goto error;
+    {
+        fprintf(stderr, "Error number: %d\n", err);
+        fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
+    }
 
     Pa_Terminate();
 
-    return err;
-error:
-    Pa_Terminate();
-    fprintf(stderr, "An error occured while using the portaudio stream\n");
-    fprintf(stderr, "Error number: %d\n", err);
-    fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
     return err;
 }
