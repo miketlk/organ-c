@@ -1,1 +1,1 @@
-g++ main.cpp libportaudio.a -I./lib -lrt -lasound -ljack -pthread -lsndfile -lsamplerate -std=c++11 -o organ.app
+g++ -Wall -D__LINUX_ALSA__ main.cpp libportaudio.a RtMidi.cpp -I./lib -lrt -lasound -pthread -lsndfile -lsamplerate -std=c++11 -o organ.app

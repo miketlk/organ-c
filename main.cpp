@@ -10,10 +10,11 @@
 #include <memory>
 #include "filter_common.h"
 #include "filter_includes.h"
+#include "RtMidi.h"
 
 #define SAMPLE_RATE (48000)
 #define FRAMES_PER_BUFFER (256)
-#define SAMPLE_SILENCE  (0.0f)
+#define SAMPLE_SILENCE (0.0f)
 
 static int patestCallback(const void *inputBuffer, void *outputBuffer,
                           unsigned long framesPerBuffer,
@@ -30,9 +31,17 @@ static int patestCallback(const void *inputBuffer, void *outputBuffer,
 
     for (i = 0; i < framesPerBuffer; i++)
     {
-
     }
     return paContinue;
+}
+
+void mycallback(double deltatime, std::vector<unsigned char> *message, void *userData)
+{
+    unsigned int nBytes = message->size();
+    for (unsigned int i = 0; i < nBytes; i++)
+        std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
+    if (nBytes > 0)
+        std::cout << "stamp = " << deltatime << std::endl;
 }
 
 int main(void);
@@ -41,7 +50,7 @@ int main(void)
     PaAlsaStreamInfo info;
     PaStreamParameters outputParameters;
     PaStream *stream;
-    
+
     PaError err;
 
     SF_INSTRUMENT inst;
@@ -50,6 +59,14 @@ int main(void)
     PaAlsa_EnableRealtimeScheduling(&stream, true);
 
     int data = 1;
+
+    RtMidiIn *midiin = new RtMidiIn();
+    // Check available ports.
+    unsigned int nPorts = midiin->getPortCount();
+    if (nPorts == 0)
+    {
+        std::cout << "No ports available!\n";
+    }
 
     err = Pa_Initialize();
     if (err != paNoError)
@@ -82,6 +99,10 @@ int main(void)
     if (err != paNoError)
         goto error;
 
+    midiin->openPort(0);
+    midiin->setCallback(&mycallback);
+    midiin->ignoreTypes(false, false, false);
+    
     while (true)
     {
         Pa_Sleep(5000);

@@ -6,3 +6,4 @@
 - https://github.com/dimtass/DSP-Cpp-filters
 - libsndfile
 - libsamplerate
+- rtmidi
