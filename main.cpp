@@ -35,7 +35,7 @@ static int patestCallback(const void *inputBuffer, void *outputBuffer,
     return paContinue;
 }
 
-void mycallback(double deltatime, std::vector<unsigned char> *message, void *userData)
+void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *userData)
 {
     unsigned int nBytes = message->size();
     for (unsigned int i = 0; i < nBytes; i++)
@@ -74,13 +74,13 @@ int main(void)
         fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
     }
 
-    outputParameters.device = 0; /* default output device */
+    outputParameters.device = 0;
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
     }
-    outputParameters.channelCount = 1;         /* stereo output */
-    outputParameters.sampleFormat = paFloat32; /* 32 bit floating point output */
+    outputParameters.channelCount = 1;
+    outputParameters.sampleFormat = paFloat32;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = NULL;
 
@@ -107,8 +107,7 @@ int main(void)
     }
 
     midiin->openPort(1);
-    midiin->setCallback(&mycallback);
-    midiin->ignoreTypes(false, false, false);
+    midiin->setCallback(&MidiCallback);
 
     while (true)
     {
