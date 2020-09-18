@@ -47,9 +47,25 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
     return paContinue;
 }
 
-void audioThread(int index)
+void audioThreadFunc(int index)
 {
     std::cout << index << std::endl;
+    while (true)
+    {
+       
+    }
+}
+
+void voicingThreadFunc()
+{
+    while (true)
+    {
+       
+    }
+}
+
+void windingThreadFunc()
+{
     while (true)
     {
        
@@ -76,8 +92,11 @@ int main(void)
         std::vector<float> newbuffer(FRAMES_PER_BUFFER);
         std::fill(newbuffer.begin(), newbuffer.end(), SAMPLE_SILENCE); 
         buffers.push_back(newbuffer);
-        audioThreads.emplace_back([&]{audioThread(i);});
+        audioThreads.emplace_back([&]{audioThreadFunc(i);});
     };
+
+    std::thread voicingThread(voicingThreadFunc);
+    std::thread windingThread(windingThreadFunc);
 
     PaAlsaStreamInfo info;
     PaStreamParameters outputParameters;
