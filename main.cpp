@@ -14,8 +14,16 @@
 #include <unordered_map>
 
 #define SAMPLE_RATE (48000)
+#define NUM_CHANNELS (1)
 #define FRAMES_PER_BUFFER (256)
 #define SAMPLE_SILENCE (0.0f)
+
+typedef struct
+{
+    std::thread thread;
+    std::vector<float> buffer;
+    int fillBuffer = 1;
+} threadItem;
 
 typedef struct
 {
@@ -25,8 +33,7 @@ typedef struct
 } sample;
 
 std::vector<sample> samples;
-std::vector<std::vector<float>> buffers;
-std::vector<std::thread> audioThreads;
+std::vector<threadItem> audioThreads;
 
 static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
@@ -36,22 +43,44 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
 {
     float *out = (float *)outputBuffer;
     unsigned long i;
+    unsigned long j;
 
     (void)timeInfo;
     (void)statusFlags;
     (void)inputBuffer;
+    (void)userData;
 
-    for (i = 0; i < framesPerBuffer; i++)
+    float inbuffer[framesPerBuffer * NUM_CHANNELS];
+
+    for (j = 0; j < audioThreads.size(); j++)
     {
+
+        std::copy(std::begin(audioThreads[j].buffer), std::end(audioThreads[j].buffer), inbuffer);
+        if (audioThreads[j].fillBuffer == 0)
+        {
+            audioThreads[j].fillBuffer = 1;
+        }
+        for (i = 0; i < framesPerBuffer; i++)
+        {
+            *out++ = inbuffer[i];
+        }
     }
     return paContinue;
 }
 
 void audioThreadFunc(int index)
 {
+    unsigned long i;
     while (true)
     {
-       
+        if (audioThreads[index].fillBuffer == 1)
+        {
+            for (i = 0; i < FRAMES_PER_BUFFER * NUM_CHANNELS; i++)
+            {
+                audioThreads[index].buffer[i] = SAMPLE_SILENCE;
+            }
+            audioThreads[index].fillBuffer = 0;
+        }
     }
 }
 
@@ -59,7 +88,6 @@ void voicingThreadFunc()
 {
     while (true)
     {
-       
     }
 }
 
@@ -67,7 +95,6 @@ void windingThreadFunc()
 {
     while (true)
     {
-       
     }
 }
 
@@ -87,11 +114,13 @@ int main(void)
     int available_threads = processor_count - 7;
     //std::cout << available_threads << std::endl;
 
-    for (int i = 0; i < available_threads; i++) {
-        std::vector<float> newbuffer(FRAMES_PER_BUFFER);
-        std::fill(newbuffer.begin(), newbuffer.end(), SAMPLE_SILENCE); 
-        buffers.push_back(newbuffer);
-        audioThreads.push_back(std::thread(audioThreadFunc, i));
+    for (int i = 0; i < available_threads; i++)
+    {
+        audioThreads.push_back(threadItem());
+        std::vector<float> newbuffer(FRAMES_PER_BUFFER * NUM_CHANNELS);
+        audioThreads[i].buffer = newbuffer;
+        std::fill(audioThreads[i].buffer.begin(), audioThreads[i].buffer.end(), SAMPLE_SILENCE);
+        audioThreads[i].thread = std::thread(audioThreadFunc, i);
     };
 
     std::thread voicingThread(voicingThreadFunc);
@@ -107,8 +136,6 @@ int main(void)
 
     PaAlsa_InitializeStreamInfo(&info);
     PaAlsa_EnableRealtimeScheduling(&stream, true);
-
-    int data = 1;
 
     RtMidiIn *midiin = new RtMidiIn();
     unsigned int nPorts = midiin->getPortCount();
@@ -129,7 +156,7 @@ int main(void)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
     }
-    outputParameters.channelCount = 1;
+    outputParameters.channelCount = NUM_CHANNELS;
     outputParameters.sampleFormat = paFloat32;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = NULL;
@@ -142,7 +169,7 @@ int main(void)
         FRAMES_PER_BUFFER,
         paClipOff,
         paAudioCallback,
-        &data);
+        &available_threads);
     if (err != paNoError)
     {
         fprintf(stderr, "Error number: %d\n", err);
