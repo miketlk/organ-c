@@ -49,7 +49,6 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
 
 void audioThreadFunc(int index)
 {
-    std::cout << index << std::endl;
     while (true)
     {
        
@@ -85,14 +84,14 @@ int main(void);
 int main(void)
 {
     const auto processor_count = std::thread::hardware_concurrency();
-    int available_threads = processor_count - 8;
-    std::cout << available_threads << std::endl;
+    int available_threads = processor_count - 7;
+    //std::cout << available_threads << std::endl;
 
     for (int i = 0; i < available_threads; i++) {
         std::vector<float> newbuffer(FRAMES_PER_BUFFER);
         std::fill(newbuffer.begin(), newbuffer.end(), SAMPLE_SILENCE); 
         buffers.push_back(newbuffer);
-        audioThreads.emplace_back([&]{audioThreadFunc(i);});
+        audioThreads.push_back(std::thread(audioThreadFunc, i));
     };
 
     std::thread voicingThread(voicingThreadFunc);
