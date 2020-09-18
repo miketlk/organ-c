@@ -26,6 +26,7 @@ typedef struct
 
 std::vector<sample> samples;
 std::vector<std::vector<float>> buffers;
+std::vector<std::thread> audioThreads;
 
 static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
@@ -44,6 +45,15 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
     {
     }
     return paContinue;
+}
+
+void audioThread(int index)
+{
+    std::cout << index << std::endl;
+    while (true)
+    {
+       
+    }
 }
 
 void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *userData)
@@ -66,6 +76,7 @@ int main(void)
         std::vector<float> newbuffer(FRAMES_PER_BUFFER);
         std::fill(newbuffer.begin(), newbuffer.end(), SAMPLE_SILENCE); 
         buffers.push_back(newbuffer);
+        audioThreads.emplace_back([&]{audioThread(i);});
     };
 
     PaAlsaStreamInfo info;
