@@ -11,16 +11,27 @@
 #include "filter_common.h"
 #include "filter_includes.h"
 #include "RtMidi.h"
+#include <unordered_map>
 
 #define SAMPLE_RATE (48000)
 #define FRAMES_PER_BUFFER (256)
 #define SAMPLE_SILENCE (0.0f)
 
-static int patestCallback(const void *inputBuffer, void *outputBuffer,
-                          unsigned long framesPerBuffer,
-                          const PaStreamCallbackTimeInfo *timeInfo,
-                          PaStreamCallbackFlags statusFlags,
-                          void *userData)
+typedef struct
+{
+    std::vector<float> data;
+    int pos;
+    int active;
+} sample;
+
+std::vector<sample> samples;
+std::vector<std::vector<float>> buffers;
+
+static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
+                           unsigned long framesPerBuffer,
+                           const PaStreamCallbackTimeInfo *timeInfo,
+                           PaStreamCallbackFlags statusFlags,
+                           void *userData)
 {
     float *out = (float *)outputBuffer;
     unsigned long i;
@@ -47,6 +58,16 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
 int main(void);
 int main(void)
 {
+    const auto processor_count = std::thread::hardware_concurrency();
+    int available_threads = processor_count - 8;
+    std::cout << available_threads << std::endl;
+
+    for (int i = 0; i < available_threads; i++) {
+        std::vector<float> newbuffer(FRAMES_PER_BUFFER);
+        std::fill(newbuffer.begin(), newbuffer.end(), SAMPLE_SILENCE); 
+        buffers.push_back(newbuffer);
+    };
+
     PaAlsaStreamInfo info;
     PaStreamParameters outputParameters;
     PaStream *stream;
@@ -91,7 +112,7 @@ int main(void)
         SAMPLE_RATE,
         FRAMES_PER_BUFFER,
         paClipOff,
-        patestCallback,
+        paAudioCallback,
         &data);
     if (err != paNoError)
     {
