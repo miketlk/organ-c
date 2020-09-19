@@ -59,8 +59,10 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
     (void)inputBuffer;
     (void)userData;
 
-    std::vector<float> inbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
-    std::vector<float> outmainbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
+    long unsigned int frames = NUM_CHANNELS * FRAMES_PER_BUFFER;
+
+    std::vector<float> inbuffer(frames);
+    std::vector<float> outmainbuffer(frames);
     std::fill(outmainbuffer.begin(), outmainbuffer.end(), SAMPLE_SILENCE);
 
     for (j = 0; j < audioThreads.size(); j++)
@@ -70,13 +72,13 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
             inbuffer = audioThreads[j].buffer;
             audioThreads[j].fillBuffer = 1;
 
-            for (i = 0; i < FRAMES_PER_BUFFER * NUM_CHANNELS; i++)
+            for (i = 0; i < frames; i++)
             {
                 outmainbuffer[i] += inbuffer[i];
             }
         }
     }
-    for (i = 0; i < FRAMES_PER_BUFFER * NUM_CHANNELS; i++)
+    for (i = 0; i < frames; i++)
     {
         *out++ = outmainbuffer[i];
     }
