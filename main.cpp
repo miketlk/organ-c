@@ -35,7 +35,7 @@ typedef struct
     std::vector<float> data;
     int pos = 0;
     int playing = 0;
-    int thread = 0;
+    int thread = 1;
     int loopStart = 0;
     int loopEnd = 0;
     int channel = 0;
@@ -59,20 +59,26 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
     (void)inputBuffer;
     (void)userData;
 
-    float inbuffer[FRAMES_PER_BUFFER * NUM_CHANNELS];
+    std::vector<float> inbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
+    std::vector<float> outmainbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
+    std::fill(outmainbuffer.begin(), outmainbuffer.end(), SAMPLE_SILENCE);
 
     for (j = 0; j < audioThreads.size(); j++)
     {
         if (audioThreads[j].fillBuffer == 0)
         {
-            std::copy(std::begin(audioThreads[j].buffer), std::end(audioThreads[j].buffer), inbuffer);
+            inbuffer = audioThreads[j].buffer;
             audioThreads[j].fillBuffer = 1;
 
-            for (i = 0; i < framesPerBuffer; i++)
+            for (i = 0; i < FRAMES_PER_BUFFER * NUM_CHANNELS; i++)
             {
-                *out++ = inbuffer[i];
+                outmainbuffer[i] += inbuffer[i];
             }
         }
+    }
+    for (i = 0; i < FRAMES_PER_BUFFER * NUM_CHANNELS; i++)
+    {
+        *out++ = outmainbuffer[i];
     }
     return paContinue;
 }
@@ -95,7 +101,7 @@ void audioThreadFunc(int index)
                 {
                     if (it.thread == index && it.playing == 1)
                     {
-                        if (it.pos > it.loopEnd-FRAMES_PER_BUFFER)
+                        if (it.pos > it.loopEnd - FRAMES_PER_BUFFER)
                         {
                             it.pos = it.loopStart;
                         }
@@ -169,7 +175,7 @@ int main(void)
 
         sf_close(wf);
 
-        std::vector<float> newbuffer(data, data+nframes);
+        std::vector<float> newbuffer(data, data + nframes);
         samples[i].data = newbuffer;
         samples[i].loopEnd = nframes;
         samples[i].playing = 1;
@@ -210,7 +216,21 @@ int main(void)
         fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
     }
 
-    outputParameters.device = 9;
+    int numDevices;
+    numDevices = Pa_GetDeviceCount();
+    if (numDevices < 0)
+    {
+        printf("ERROR: Pa_CountDevices returned 0x%x\n", numDevices);
+    }
+
+    const PaDeviceInfo *deviceInfo;
+    for (int ii = 0; ii < numDevices; ii++)
+    {
+        deviceInfo = Pa_GetDeviceInfo(ii);
+        std::cout << ii << " - " << deviceInfo->name << std::endl;
+    }
+
+    outputParameters.device = 6;
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
