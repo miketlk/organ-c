@@ -36,6 +36,7 @@ typedef struct
     int pos = 0;
     int playing = 0;
     int thread = 1;
+    int loops = 0;
     int loopStart = 0;
     int loopEnd = 0;
     int channel = 0;
@@ -103,16 +104,20 @@ void audioThreadFunc(int index)
                 {
                     if (it.thread == index && it.playing == 1)
                     {
-                        if (it.pos > it.loopEnd - FRAMES_PER_BUFFER)
-                        {
-                            it.pos = it.loopStart;
-                        }
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
                             val = it.data.at(it.pos + i);
                             audioThreads[index].buffer[i] += val;
                         }
                         it.pos += FRAMES_PER_BUFFER;
+                        if (it.pos > it.loopEnd - FRAMES_PER_BUFFER)
+                        {
+                            if (it.loops == 1) {
+                                it.pos = it.loopStart;
+                            } else {
+                                it.playing = 0;
+                            }
+                        }
                     }
                 }
             }
