@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
 #include <sndfile.hh>
 #include <samplerate.h>
 #include "portaudio.h"
@@ -12,6 +13,9 @@
 #include "filter_includes.h"
 #include "RtMidi.h"
 #include <unordered_map>
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 #define SAMPLE_RATE (48000)
 #define NUM_CHANNELS (1)
@@ -137,6 +141,10 @@ int main(void)
     const auto processor_count = std::thread::hardware_concurrency();
     int available_threads = processor_count - 7;
     //std::cout << available_threads << std::endl;
+
+    std::ifstream ii("config.json");
+    json config;
+    ii >> config;
 
     for (int i = 0; i < available_threads; i++)
     {

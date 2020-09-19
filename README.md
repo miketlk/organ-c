@@ -7,3 +7,4 @@
 - libsndfile
 - libsamplerate
 - rtmidi
+- https://github.com/nlohmann/json
