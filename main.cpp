@@ -95,7 +95,7 @@ void audioThreadFunc(int index)
                 {
                     if (it.thread == index && it.playing == 1)
                     {
-                        if (it.pos > it.loopEnd)
+                        if (it.pos > it.loopEnd-FRAMES_PER_BUFFER)
                         {
                             it.pos = it.loopStart;
                         }
@@ -210,7 +210,7 @@ int main(void)
         fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
     }
 
-    outputParameters.device = 0;
+    outputParameters.device = 9;
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
