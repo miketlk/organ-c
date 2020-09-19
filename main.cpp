@@ -164,7 +164,8 @@ int main(void)
     int selectedThread = 0;
     for (long unsigned int i = 0; i < config["samples"].size(); i++)
     {
-        if (selectedThread >= available_threads) {
+        if (selectedThread >= available_threads)
+        {
             selectedThread = 0;
         }
         samples.push_back(sample());
