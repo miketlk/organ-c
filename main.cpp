@@ -58,14 +58,15 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
 
     for (j = 0; j < audioThreads.size(); j++)
     {
-        std::copy(std::begin(audioThreads[j].buffer), std::end(audioThreads[j].buffer), inbuffer);
         if (audioThreads[j].fillBuffer == 0)
         {
+            std::copy(std::begin(audioThreads[j].buffer), std::end(audioThreads[j].buffer), inbuffer);
             audioThreads[j].fillBuffer = 1;
-        }
-        for (i = 0; i < framesPerBuffer; i++)
-        {
-            *out++ = inbuffer[i];
+
+            for (i = 0; i < framesPerBuffer; i++)
+            {
+                *out++ = inbuffer[i];
+            }
         }
     }
     return paContinue;
@@ -89,13 +90,14 @@ void audioThreadFunc(int index)
                 {
                     if (it.thread == index && it.playing == 1)
                     {
-                        if (it.pos > it.loopEnd) {
+                        if (it.pos > it.loopEnd)
+                        {
                             it.pos = it.loopStart;
                         }
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
                             val = it.data.at(it.pos + i);
-                            audioThreads[index].buffer[i+it.channel] += val;
+                            audioThreads[index].buffer[i] += val;
                         }
                         it.pos += FRAMES_PER_BUFFER;
                     }
