@@ -14,6 +14,7 @@
 #include "RtMidi.h"
 #include <unordered_map>
 #include "json.hpp"
+#include <string>
 
 using json = nlohmann::json;
 
@@ -146,6 +147,34 @@ int main(void)
     json config;
     ii >> config;
 
+    SNDFILE *wf;
+    SF_INFO inFileInfo;
+    SF_INSTRUMENT inst;
+    int nframes;
+    std::string filename;
+
+    for (long unsigned int i = 0; i < config["samples"].size(); i++)
+    {
+        samples.push_back(sample());
+
+        filename = config["samples"][i]["file"];
+
+        wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
+        sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
+
+        nframes = inFileInfo.frames * inFileInfo.channels;
+        float data[nframes];
+
+        sf_read_float(wf, data, nframes);
+
+        sf_close(wf);
+
+        std::vector<float> newbuffer(data, data+nframes);
+        samples[i].data = newbuffer;
+        samples[i].loopEnd = nframes;
+        samples[i].playing = 1;
+    }
+
     for (int i = 0; i < available_threads; i++)
     {
         audioThreads.push_back(threadItem());
@@ -163,8 +192,6 @@ int main(void)
     PaStream *stream;
 
     PaError err;
-
-    SF_INSTRUMENT inst;
 
     PaAlsa_InitializeStreamInfo(&info);
     PaAlsa_EnableRealtimeScheduling(&stream, true);

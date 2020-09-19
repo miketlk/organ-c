@@ -1,3 +1,10 @@
 {
-    "name": "hi"
+    "samples": [
+        {
+            "file": "00.wav"
+        },
+        {
+            "file": "01.wav"
+        }
+    ]
 }
