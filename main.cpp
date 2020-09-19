@@ -28,8 +28,12 @@ typedef struct
 typedef struct
 {
     std::vector<float> data;
-    int pos;
-    int active;
+    int pos = 0;
+    int playing = 0;
+    int thread = 0;
+    int loopStart = 0;
+    int loopEnd = 0;
+    int channel = 0;
 } sample;
 
 std::vector<sample> samples;
@@ -50,11 +54,10 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
     (void)inputBuffer;
     (void)userData;
 
-    float inbuffer[framesPerBuffer * NUM_CHANNELS];
+    float inbuffer[FRAMES_PER_BUFFER * NUM_CHANNELS];
 
     for (j = 0; j < audioThreads.size(); j++)
     {
-
         std::copy(std::begin(audioThreads[j].buffer), std::end(audioThreads[j].buffer), inbuffer);
         if (audioThreads[j].fillBuffer == 0)
         {
@@ -71,6 +74,7 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
 void audioThreadFunc(int index)
 {
     unsigned long i;
+    float val;
     while (true)
     {
         if (audioThreads[index].fillBuffer == 1)
@@ -78,6 +82,24 @@ void audioThreadFunc(int index)
             for (i = 0; i < FRAMES_PER_BUFFER * NUM_CHANNELS; i++)
             {
                 audioThreads[index].buffer[i] = SAMPLE_SILENCE;
+            }
+            if (samples.size() > 0)
+            {
+                for (auto &it : samples)
+                {
+                    if (it.thread == index && it.playing == 1)
+                    {
+                        if (it.pos > it.loopEnd) {
+                            it.pos = it.loopStart;
+                        }
+                        for (i = 0; i < FRAMES_PER_BUFFER; i++)
+                        {
+                            val = it.data.at(it.pos + i);
+                            audioThreads[index].buffer[i+it.channel] += val;
+                        }
+                        it.pos += FRAMES_PER_BUFFER;
+                    }
+                }
             }
             audioThreads[index].fillBuffer = 0;
         }
