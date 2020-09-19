@@ -161,8 +161,12 @@ int main(void)
     int nframes;
     std::string filename;
 
+    int selectedThread = 0;
     for (long unsigned int i = 0; i < config["samples"].size(); i++)
     {
+        if (selectedThread >= available_threads) {
+            selectedThread = 0;
+        }
         samples.push_back(sample());
 
         filename = config["samples"][i]["file"];
@@ -181,6 +185,8 @@ int main(void)
         samples[i].data = newbuffer;
         samples[i].loopEnd = nframes;
         samples[i].playing = 1;
+        samples[i].thread = selectedThread;
+        selectedThread += 1;
     }
 
     for (int i = 0; i < available_threads; i++)
