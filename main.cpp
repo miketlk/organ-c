@@ -36,7 +36,7 @@ typedef struct
     int pos = 0;
     int playing = 0;
     int thread = 1;
-    int loops = 0;
+    int loops = 1;
     int loopStart = 0;
     int loopEnd = 0;
     int channel = 0;
