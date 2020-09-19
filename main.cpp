@@ -90,13 +90,15 @@ void audioThreadFunc(int index)
 {
     unsigned long i;
     float val;
+    std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
+    std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
     while (true)
     {
         if (audioThreads[index].fillBuffer == 1)
         {
             for (i = 0; i < FRAMES_PER_BUFFER * NUM_CHANNELS; i++)
             {
-                audioThreads[index].buffer[i] = SAMPLE_SILENCE;
+                workingbuffer[i] = SAMPLE_SILENCE;
             }
             if (samples.size() > 0)
             {
@@ -107,19 +109,26 @@ void audioThreadFunc(int index)
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
                             val = it.data.at(it.pos + i);
-                            audioThreads[index].buffer[i] += val;
+                            workingbuffer[i] += val;
                         }
                         it.pos += FRAMES_PER_BUFFER;
                         if (it.pos > it.loopEnd - FRAMES_PER_BUFFER)
                         {
-                            if (it.loops == 1) {
+                            if (it.loops == 1)
+                            {
                                 it.pos = it.loopStart;
-                            } else {
+                            }
+                            else
+                            {
                                 it.playing = 0;
                             }
                         }
                     }
                 }
+            }
+            for (i = 0; i < FRAMES_PER_BUFFER * NUM_CHANNELS; i++)
+            {
+                audioThreads[index].buffer[i] = workingbuffer[i];
             }
             audioThreads[index].fillBuffer = 0;
         }
