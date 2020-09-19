@@ -15,6 +15,8 @@
 #include <unordered_map>
 #include "json.hpp"
 #include <string>
+#include <csignal>
+#include <atomic>
 
 using json = nlohmann::json;
 
@@ -22,6 +24,8 @@ using json = nlohmann::json;
 #define NUM_CHANNELS (1)
 #define FRAMES_PER_BUFFER (256)
 #define SAMPLE_SILENCE (0.0f)
+
+std::atomic<bool> exit_thread_flag{false};
 
 typedef struct
 {
@@ -44,6 +48,11 @@ typedef struct
 
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
+
+void signalHandler(int signum)
+{
+    exit_thread_flag = true;
+}
 
 static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
@@ -92,7 +101,7 @@ void audioThreadFunc(int index)
     float val;
     std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
     std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
-    while (true)
+    while (!exit_thread_flag)
     {
         if (audioThreads[index].fillBuffer == 1)
         {
@@ -137,14 +146,14 @@ void audioThreadFunc(int index)
 
 void voicingThreadFunc()
 {
-    while (true)
+    while (!exit_thread_flag)
     {
     }
 }
 
 void windingThreadFunc()
 {
-    while (true)
+    while (!exit_thread_flag)
     {
     }
 }
@@ -161,6 +170,7 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
 int main(void);
 int main(void)
 {
+    signal(SIGINT, signalHandler);
     const auto processor_count = std::thread::hardware_concurrency();
     int available_threads = processor_count - 7;
     //std::cout << available_threads << std::endl;
@@ -288,10 +298,20 @@ int main(void)
     midiin->openPort(1);
     midiin->setCallback(&MidiCallback);
 
-    while (true)
+    while (!exit_thread_flag)
     {
-        Pa_Sleep(5000);
+        Pa_Sleep(500);
     }
+
+    voicingThread.join();
+    windingThread.join();
+
+    for (long unsigned int i = 0; i < audioThreads.size(); i++)
+    {
+        audioThreads[i].thread.join();
+    }
+
+    delete midiin;
 
     err = Pa_StopStream(stream);
     if (err != paNoError)
