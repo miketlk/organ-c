@@ -245,6 +245,7 @@ int main(void)
     err = Pa_Initialize();
     if (err != paNoError)
     {
+        fprintf(stderr, "Initialize error\n");
         fprintf(stderr, "Error number: %d\n", err);
         fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
     }
@@ -284,6 +285,7 @@ int main(void)
         &available_threads);
     if (err != paNoError)
     {
+        fprintf(stderr, "OpenStream error\n");
         fprintf(stderr, "Error number: %d\n", err);
         fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
     }
@@ -291,6 +293,7 @@ int main(void)
     err = Pa_StartStream(stream);
     if (err != paNoError)
     {
+        fprintf(stderr, "StartStream error\n");
         fprintf(stderr, "Error number: %d\n", err);
         fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
     }
@@ -316,6 +319,7 @@ int main(void)
     err = Pa_StopStream(stream);
     if (err != paNoError)
     {
+        fprintf(stderr, "StopStream error\n");
         fprintf(stderr, "Error number: %d\n", err);
         fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
     }
@@ -323,6 +327,7 @@ int main(void)
     err = Pa_CloseStream(stream);
     if (err != paNoError)
     {
+        fprintf(stderr, "CloseStream error\n");
         fprintf(stderr, "Error number: %d\n", err);
         fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
     }
