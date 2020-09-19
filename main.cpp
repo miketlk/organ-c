@@ -170,7 +170,7 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
 int main(void);
 int main(void)
 {
-    signal(SIGINT, signalHandler);
+    signal(2, signalHandler); // SIGINT
     const auto processor_count = std::thread::hardware_concurrency();
     int available_threads = processor_count - 7;
     //std::cout << available_threads << std::endl;
