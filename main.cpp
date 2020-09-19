@@ -21,7 +21,7 @@
 using json = nlohmann::json;
 
 #define SAMPLE_RATE (48000)
-#define NUM_CHANNELS (1)
+#define NUM_CHANNELS (2)
 #define FRAMES_PER_BUFFER (256)
 #define SAMPLE_SILENCE (0.0f)
 
@@ -43,7 +43,7 @@ typedef struct
     int loops = 1;
     int loopStart = 0;
     int loopEnd = 0;
-    int channel = 0;
+    int channel = 1;
 } sample;
 
 std::vector<sample> samples;
@@ -118,7 +118,7 @@ void audioThreadFunc(int index)
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
                             val = it.data.at(it.pos + i);
-                            workingbuffer[i] += val;
+                            workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
                         }
                         it.pos += FRAMES_PER_BUFFER;
                         if (it.pos > it.loopEnd - FRAMES_PER_BUFFER)
