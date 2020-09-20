@@ -43,7 +43,7 @@ typedef struct
     int loopStart = 0;
     int loopEnd = 0;
     int channel = 1;
-    float pitchMult = 1.5;
+    float pitchMult = 1.0;
     float volMult = 1.0;
 } sample;
 
