@@ -45,8 +45,16 @@ typedef struct
     int channel = 1;
     float pitchMult = 1.0;
     float volMult = 1.0;
+    int enclosed = 0;
+    int enclosure = 0;
+    int fadeout = 0;
+    float fadeoutPos = 100000;
+    int fadein = 1;
+    float fadeinPos = 0;
 } sample;
 
+float globalVolume = 1.0;
+float globalPitch = 1.0;
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
 
@@ -99,11 +107,12 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
 void audioThreadFunc(int index)
 {
     unsigned long i;
-    float val;
-    float pitch = 1.0;
-    float vol = 1.0;
+    float pitch;
+    float vol;
     int k = 0;
     float j;
+    float fadeoutvol;
+    float fadeinvol;
     std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
     std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
     while (!exit_thread_flag)
@@ -121,7 +130,11 @@ void audioThreadFunc(int index)
                     if (it.thread == index && it.playing == 1)
                     {
                         pitch = it.pitchMult;
+                        pitch *= globalPitch;
                         vol = it.volMult;
+                        vol *= globalVolume;
+                        fadeoutvol = 1.0;
+                        fadeinvol = 1.0;
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
                             j = it.pos + i * pitch;
@@ -137,8 +150,32 @@ void audioThreadFunc(int index)
                                     it.playing = 0;
                                 }
                             }
-                            val = (it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * vol;
-                            workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
+                            if (it.fadeout == 1)
+                            {
+                                if (it.fadeoutPos == 0)
+                                {
+                                    it.fadeout = 0;
+                                    it.playing = 0;
+                                }
+                                else
+                                {
+                                    fadeoutvol = it.fadeoutPos / 100000;
+                                    it.fadeoutPos -= 1;
+                                }
+                            }
+                            if (it.fadein == 1)
+                            {
+                                if (it.fadeinPos == 100000)
+                                {
+                                    it.fadein = 0;
+                                }
+                                else
+                                {
+                                    fadeinvol = it.fadeinPos / 100000;
+                                    it.fadeinPos += 1;
+                                }
+                            }
+                            workingbuffer[(NUM_CHANNELS * i) + it.channel] += ((it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * vol) * fadeoutvol * fadeinvol;
                         }
                         it.pos += FRAMES_PER_BUFFER * pitch;
                     }
