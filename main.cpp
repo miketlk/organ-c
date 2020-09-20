@@ -61,7 +61,7 @@ typedef struct
     int min;
     int max;
     int value;
-} enclosurestep;
+} enclosureStage;
 
 typedef struct
 {
@@ -79,12 +79,12 @@ typedef struct
     int selectedValue = 127;
     int enclosed = 0;
     int enclosure = 0;
-    std::vector<enclosurestep> steps;
+    std::vector<enclosureStage> stages;
     void recalculate();
     void chooseValue(int input)
     {
         selectedValue = -1;
-        for (auto &it : steps)
+        for (auto &it : stages)
         {
             if (input >= it.min && input <= it.max)
             {
@@ -338,26 +338,37 @@ int main(void)
     json config;
     ii >> config;
 
+    for (long unsigned int i = 0; i < config["enclosures"].size(); i++)
+    {
+        enclosures.insert(enclosures.begin() + config["enclosures"][i]["id"], enclosure());
+        enclosures[config["enclosures"][i]["id"]].midichannel = config["enclosures"][i]["midichannel"];
+        enclosures[config["enclosures"][i]["id"]].midinote = config["enclosures"][i]["midinote"];
+        enclosures[config["enclosures"][i]["id"]].enclosed = config["enclosures"][i]["enclosed"];
+        enclosures[config["enclosures"][i]["id"]].enclosure = config["enclosures"][i]["enclosure"];
+        enclosures[config["enclosures"][i]["id"]].maxHighpass = config["enclosures"][i]["maxHighpass"];
+        enclosures[config["enclosures"][i]["id"]].minHighpass = config["enclosures"][i]["minHighpass"];
+        enclosures[config["enclosures"][i]["id"]].maxLowpass = config["enclosures"][i]["maxLowpass"];
+        enclosures[config["enclosures"][i]["id"]].minLowpass = config["enclosures"][i]["minLowpass"];
+        enclosures[config["enclosures"][i]["id"]].maxVolume = config["enclosures"][i]["maxVolume"];
+        enclosures[config["enclosures"][i]["id"]].minVolume = config["enclosures"][i]["minVolume"];
+        for (long unsigned int ii = 0; ii < config["enclosures"][i]["stages"].size(); ii++)
+        {
+            enclosures[config["enclosures"][i]["id"]].stages.push_back(enclosureStage());
+            enclosures[config["enclosures"][i]["id"]].stages[ii].max = config["enclosures"][i]["stages"][i]["max"];
+            enclosures[config["enclosures"][i]["id"]].stages[ii].min = config["enclosures"][i]["stages"][i]["min"];
+            enclosures[config["enclosures"][i]["id"]].stages[ii].value = config["enclosures"][i]["stages"][i]["value"];
+        }
+    }
+    for (auto &it : enclosures)
+    {
+        it.recalculate();
+    }
+
     SNDFILE *wf;
     SF_INFO inFileInfo;
     SF_INSTRUMENT inst;
     int nframes;
     std::string filename;
-
-    enclosures.push_back(enclosure());
-    enclosures[0].midichannel = 1;
-    enclosures[0].midinote = 7;
-    enclosures[0].maxVolume = 1.0;
-    enclosures[0].minVolume = 0.0;
-    enclosures[0].minLowpass = 5000;
-    enclosures[0].maxLowpass = 10000;
-    enclosures[0].minHighpass = 500;
-    enclosures[0].maxHighpass = 1000;
-    enclosures[0].recalculate();
-    enclosures[0].steps.push_back(enclosurestep());
-    enclosures[0].steps[0].max = 50;
-    enclosures[0].steps[0].min = 0;
-    enclosures[0].steps[0].value = 10;
 
     int selectedThread = 0;
     for (long unsigned int i = 0; i < config["samples"].size(); i++)
