@@ -44,7 +44,7 @@ typedef struct
     int loopStart = 0;
     int loopEnd = 0;
     int channel = 1;
-    float pitchMult = 0.5;
+    float pitchMult = 1.0;
     float volMult = 1.0;
 } sample;
 
@@ -105,12 +105,6 @@ void audioThreadFunc(int index)
     float vol = 1.0;
     std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
     std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
-
-    float samplebuffer[FRAMES_PER_BUFFER];
-    std::fill(std::begin(samplebuffer), std::end(samplebuffer), SAMPLE_SILENCE);
-    float samplebuffertwo[FRAMES_PER_BUFFER];
-    std::fill(std::begin(samplebuffertwo), std::end(samplebuffertwo), SAMPLE_SILENCE);
-
     while (!exit_thread_flag)
     {
         if (audioThreads[index].fillBuffer == 1)
@@ -125,11 +119,6 @@ void audioThreadFunc(int index)
                 {
                     if (it.thread == index && it.playing == 1)
                     {
-                        for (i = 0; i < FRAMES_PER_BUFFER; i++)
-                        {
-                            samplebuffer[i] = SAMPLE_SILENCE;
-                            samplebuffertwo[i] = SAMPLE_SILENCE;
-                        }
                         pitch = it.pitchMult;
                         vol = it.volMult;
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
