@@ -47,7 +47,7 @@ typedef struct
     int channel = 1;
     float pitchMult = 1.0;
     float volMult = 1.0;
-    int enclosed = 0;
+    int enclosed = 1;
     int enclosure = 0;
     int fadeout = 0;
     float fadeoutPos = FADEOUT_LENGTH;
@@ -110,13 +110,17 @@ void audioThreadFunc(int index)
 {
     unsigned long i;
     float pitch;
-    float vol;
     int k = 0;
     float j;
     float fadeoutvol;
     float fadeinvol;
+    float val;
     std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
     std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
+
+    std::unique_ptr<SO_BUTTERWORTH_LPF> lowpassFilter(new SO_BUTTERWORTH_LPF);
+    std::unique_ptr<SO_BUTTERWORTH_HPF> highpassFilter(new SO_BUTTERWORTH_HPF);
+
     while (!exit_thread_flag)
     {
         if (audioThreads[index].fillBuffer == 1)
@@ -133,8 +137,6 @@ void audioThreadFunc(int index)
                     {
                         pitch = it.pitchMult;
                         pitch *= globalPitch;
-                        vol = it.volMult;
-                        vol *= globalVolume;
                         fadeoutvol = 1.0;
                         fadeinvol = 1.0;
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
@@ -177,7 +179,16 @@ void audioThreadFunc(int index)
                                     it.fadeinPos += 1;
                                 }
                             }
-                            workingbuffer[(NUM_CHANNELS * i) + it.channel] += ((it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * vol) * fadeoutvol * fadeinvol;
+                            val = ((it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult);
+                            if (it.enclosed == 1)
+                            {
+                                lowpassFilter->calculate_coeffs(1000, SAMPLE_RATE);
+                                highpassFilter->calculate_coeffs(100, SAMPLE_RATE);
+                                val = lowpassFilter->process(val);
+                                val = highpassFilter->process(val);
+                            }
+                            val = val * fadeoutvol * fadeinvol * globalVolume;
+                            workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
                         }
                         it.pos += FRAMES_PER_BUFFER * pitch;
                     }
