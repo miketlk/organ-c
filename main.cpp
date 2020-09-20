@@ -77,13 +77,27 @@ typedef struct
     int midichannel;
     int midinote;
     int selectedValue = 127;
+    int enclosed = 0;
+    int enclosure = 0;
     std::vector<enclosurestep> steps;
-    void setValue(int input)
+    void recalculate()
     {
-        chooseValue(input);
         volume = (((maxVolume - minVolume) / 127) * selectedValue) + minVolume;
         lowpass = (int)(((maxLowpass - minLowpass) / 127) * selectedValue) + minLowpass;
         highpass = (int)(((maxHighpass - minHighpass) / 127) * selectedValue) + minHighpass;
+        if (enclosed == 1)
+        {
+            enclosures[enclosure].recalculate();
+            volume *= enclosures[enclosure].volume;
+            if (enclosures[enclosure].highpass > highpass)
+            {
+                highpass = enclosures[enclosure].highpass;
+            }
+            if (enclosures[enclosure].lowpass < lowpass)
+            {
+                lowpass = enclosures[enclosure].lowpass;
+            }
+        }
     };
     void chooseValue(int input)
     {
@@ -192,6 +206,7 @@ void audioThreadFunc(int index)
                         if (it.enclosed == 1)
                         {
                             //std::cout << enclosures[it.enclosure].highpass << std::endl;
+                            enclosures[it.enclosure].recalculate();
                             lowpassFilter->calculate_coeffs(enclosures[it.enclosure].lowpass, SAMPLE_RATE);   // cut off everything above this frequency
                             highpassFilter->calculate_coeffs(enclosures[it.enclosure].highpass, SAMPLE_RATE); // cut off everything below this frequency
                             enclosurevol = enclosures[it.enclosure].volume;
@@ -303,7 +318,7 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
         {
             if (it.midichannel == messagechannel && it.midinote == midinote)
             {
-                it.setValue(messagevalue);
+                it.chooseValue(messagevalue);
             }
         }
     }
@@ -331,11 +346,16 @@ int main(void)
     enclosures[0].midichannel = 1;
     enclosures[0].midinote = 7;
     enclosures[0].maxVolume = 1.0;
-    enclosures[0].minVolume = 1.0;
+    enclosures[0].minVolume = 0.0;
     enclosures[0].minLowpass = 5000;
     enclosures[0].maxLowpass = 10000;
     enclosures[0].minHighpass = 500;
     enclosures[0].maxHighpass = 1000;
+    enclosures[0].recalculate();
+    enclosures[0].steps.push_back(enclosurestep());
+    enclosures[0].steps[0].max = 50;
+    enclosures[0].steps[0].min = 0;
+    enclosures[0].steps[0].value = 10;
 
     int selectedThread = 0;
     for (long unsigned int i = 0; i < config["samples"].size(); i++)
