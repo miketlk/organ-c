@@ -114,7 +114,7 @@ void audioThreadFunc(int index)
     SRC_STATE *src_state;
     SRC_DATA src_data;
     int error;
-    src_state = src_new(2, 1, &error);
+    src_state = src_new(0, 1, &error);
     src_data.input_frames = FRAMES_PER_BUFFER;
     src_data.output_frames = FRAMES_PER_BUFFER;
     src_data.data_in = samplebuffer;
