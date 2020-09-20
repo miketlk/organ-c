@@ -44,6 +44,8 @@ typedef struct
     int loopStart = 0;
     int loopEnd = 0;
     int channel = 1;
+    float pitchMult = 0.5;
+    float volMult = 1.0;
 } sample;
 
 std::vector<sample> samples;
@@ -99,8 +101,24 @@ void audioThreadFunc(int index)
 {
     unsigned long i;
     float val;
+    float pitch = 1.0;
+    float vol = 1.0;
     std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
     std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
+
+    float samplebuffer[FRAMES_PER_BUFFER];
+    std::fill(std::begin(samplebuffer), std::end(samplebuffer), SAMPLE_SILENCE);
+    float samplebuffertwo[FRAMES_PER_BUFFER];
+    std::fill(std::begin(samplebuffertwo), std::end(samplebuffertwo), SAMPLE_SILENCE);
+
+    SRC_STATE *src_state;
+    SRC_DATA src_data;
+    int error;
+    src_state = src_new(2, 1, &error);
+    src_data.input_frames = FRAMES_PER_BUFFER;
+    src_data.output_frames = FRAMES_PER_BUFFER;
+    src_data.data_in = samplebuffer;
+    src_data.data_out = samplebuffertwo;
     while (!exit_thread_flag)
     {
         if (audioThreads[index].fillBuffer == 1)
@@ -117,8 +135,16 @@ void audioThreadFunc(int index)
                     {
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
+                            samplebuffer[i] = SAMPLE_SILENCE;
+                            samplebuffertwo[i] = SAMPLE_SILENCE;
+                        }
+                        pitch = it.pitchMult;
+                        vol = it.volMult;
+                        for (i = 0; i < FRAMES_PER_BUFFER; i++)
+                        {
                             val = it.data.at(it.pos + i);
-                            workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
+                            val *= vol;
+                            samplebuffer[i] += val;
                         }
                         it.pos += FRAMES_PER_BUFFER;
                         if (it.pos > it.loopEnd - FRAMES_PER_BUFFER)
@@ -130,6 +156,22 @@ void audioThreadFunc(int index)
                             else
                             {
                                 it.playing = 0;
+                            }
+                        }
+                        if (pitch != 1.0)
+                        {
+                            src_data.src_ratio = pitch;
+                            src_process(src_state, &src_data);
+                            for (i = 0; i < FRAMES_PER_BUFFER; i++)
+                            {
+                                workingbuffer[(NUM_CHANNELS * i) + it.channel] += samplebuffertwo[i];
+                            }
+                        }
+                        else
+                        {
+                            for (i = 0; i < FRAMES_PER_BUFFER; i++)
+                            {
+                                workingbuffer[(NUM_CHANNELS * i) + it.channel] += samplebuffer[i];
                             }
                         }
                     }
@@ -264,7 +306,7 @@ int main(void)
         std::cout << ii << " - " << deviceInfo->name << std::endl;
     }
 
-    outputParameters.device = 6;
+    outputParameters.device = 9;
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
