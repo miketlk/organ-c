@@ -44,7 +44,7 @@ typedef struct
     int loops = 1;
     int loopStart = 0;
     int loopEnd = 0;
-    int channel = 1;
+    int channel = 0;
     float pitchMult = 1.0;
     float volMult = 1.0;
     int enclosed = 1;
@@ -115,6 +115,7 @@ void audioThreadFunc(int index)
     float fadeoutvol;
     float fadeinvol;
     float val;
+    float enclosurevol;
     std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
     std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
 
@@ -139,6 +140,13 @@ void audioThreadFunc(int index)
                         pitch *= globalPitch;
                         fadeoutvol = 1.0;
                         fadeinvol = 1.0;
+                        enclosurevol = 1.0;
+                        if (it.enclosed == 1)
+                        {
+                            lowpassFilter->calculate_coeffs(500, SAMPLE_RATE);  // cut off everything above this frequency
+                            highpassFilter->calculate_coeffs(200, SAMPLE_RATE); // cut off everything below this frequency
+                            enclosurevol = 1.0;
+                        }
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
                             j = it.pos + i * pitch;
@@ -182,11 +190,9 @@ void audioThreadFunc(int index)
                             val = ((it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult);
                             if (it.enclosed == 1)
                             {
-                                lowpassFilter->calculate_coeffs(500, SAMPLE_RATE); // cut off everything above this frequency
-                                highpassFilter->calculate_coeffs(200, SAMPLE_RATE); // cut off everything below this frequency
                                 val = lowpassFilter->process(val);
                                 val = highpassFilter->process(val);
-                                val *= 1.0;
+                                val *= enclosurevol;
                             }
                             val = val * fadeoutvol * fadeinvol * globalVolume;
                             workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
