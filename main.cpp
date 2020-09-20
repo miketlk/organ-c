@@ -44,7 +44,7 @@ typedef struct
     int loopStart = 0;
     int loopEnd = 0;
     int channel = 1;
-    float pitchMult = 0.5;
+    float pitchMult = 1.0;
     float volMult = 1.0;
 } sample;
 
@@ -158,21 +158,11 @@ void audioThreadFunc(int index)
                                 it.playing = 0;
                             }
                         }
-                        if (pitch != 1.0)
+                        src_data.src_ratio = pitch;
+                        src_process(src_state, &src_data);
+                        for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
-                            src_data.src_ratio = pitch;
-                            src_process(src_state, &src_data);
-                            for (i = 0; i < FRAMES_PER_BUFFER; i++)
-                            {
-                                workingbuffer[(NUM_CHANNELS * i) + it.channel] += samplebuffertwo[i];
-                            }
-                        }
-                        else
-                        {
-                            for (i = 0; i < FRAMES_PER_BUFFER; i++)
-                            {
-                                workingbuffer[(NUM_CHANNELS * i) + it.channel] += samplebuffer[i];
-                            }
+                            workingbuffer[(NUM_CHANNELS * i) + it.channel] += samplebuffertwo[i];
                         }
                     }
                 }
