@@ -49,16 +49,64 @@ typedef struct
     float volMult = 1.0;
     int enclosed = 1;
     int enclosure = 0;
+    float previousEnclosureVol = 1.0;
     int fadeout = 0;
     float fadeoutPos = FADEOUT_LENGTH;
     int fadein = 0;
     float fadeinPos = 0;
 } sample;
 
+typedef struct
+{
+    int min;
+    int max;
+    int value;
+} enclosurestep;
+
+typedef struct
+{
+    float maxHighpass;
+    float minHighpass;
+    int highpass = 100;
+    float maxLowpass;
+    float minLowpass;
+    int lowpass = 5000;
+    float maxVolume;
+    float minVolume;
+    float volume = 1.0;
+    int midichannel;
+    int midinote;
+    int selectedValue = 127;
+    std::vector<enclosurestep> steps;
+    void setValue(int input)
+    {
+        chooseValue(input);
+        volume = (((maxVolume - minVolume) / 127) * selectedValue) + minVolume;
+        lowpass = (int)(((maxLowpass - minLowpass) / 127) * selectedValue) + minLowpass;
+        highpass = (int)(((maxHighpass - minHighpass) / 127) * selectedValue) + minHighpass;
+    };
+    void chooseValue(int input)
+    {
+        selectedValue = -1;
+        for (auto &it : steps)
+        {
+            if (input >= it.min && input <= it.max)
+            {
+                selectedValue = it.value;
+            }
+        }
+        if (selectedValue == -1)
+        {
+            selectedValue = input;
+        }
+    };
+} enclosure;
+
 float globalVolume = 1.0;
 float globalPitch = 1.0;
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
+std::vector<enclosure> enclosures;
 
 void signalHandler(int signum)
 {
@@ -143,9 +191,10 @@ void audioThreadFunc(int index)
                         enclosurevol = 1.0;
                         if (it.enclosed == 1)
                         {
-                            lowpassFilter->calculate_coeffs(500, SAMPLE_RATE);  // cut off everything above this frequency
-                            highpassFilter->calculate_coeffs(200, SAMPLE_RATE); // cut off everything below this frequency
-                            enclosurevol = 1.0;
+                            //std::cout << enclosures[it.enclosure].highpass << std::endl;
+                            lowpassFilter->calculate_coeffs(enclosures[it.enclosure].lowpass, SAMPLE_RATE);   // cut off everything above this frequency
+                            highpassFilter->calculate_coeffs(enclosures[it.enclosure].highpass, SAMPLE_RATE); // cut off everything below this frequency
+                            enclosurevol = enclosures[it.enclosure].volume;
                         }
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
@@ -192,11 +241,12 @@ void audioThreadFunc(int index)
                             {
                                 val = lowpassFilter->process(val);
                                 val = highpassFilter->process(val);
-                                val *= enclosurevol;
+                                val *= (((enclosurevol - it.previousEnclosureVol) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureVol;
                             }
                             val = val * fadeoutvol * fadeinvol * globalVolume;
                             workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
                         }
+                        it.previousEnclosureVol = enclosurevol;
                         it.pos += FRAMES_PER_BUFFER * pitch;
                     }
                 }
@@ -226,11 +276,37 @@ void windingThreadFunc()
 
 void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *userData)
 {
+    int messagetype;
+    int messagechannel;
+    int midinote;
+    int messagevalue;
     unsigned int nBytes = message->size();
-    for (unsigned int i = 0; i < nBytes; i++)
-        std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
-    if (nBytes > 0)
-        std::cout << "stamp = " << deltatime << std::endl;
+    messagetype = message->at(0) >> 4;
+    //std::cout << "Type: " << messagetype << std::endl;
+    messagechannel = (message->at(0) & 15) + 1;
+    //std::cout << "Channel: " << messagechannel << std::endl;
+    if (nBytes > 1)
+    {
+        midinote = message->at(1);
+        //std::cout << "Note: " << midinote << std::endl;
+    }
+    if (nBytes > 2)
+    {
+        messagevalue = message->at(2);
+        //std::cout << "Value: " << messagevalue << std::endl;
+    }
+
+    if (messagetype == 11)
+    {
+        // Handle expression
+        for (auto &it : enclosures)
+        {
+            if (it.midichannel == messagechannel && it.midinote == midinote)
+            {
+                it.setValue(messagevalue);
+            }
+        }
+    }
 }
 
 int main(void);
@@ -250,6 +326,16 @@ int main(void)
     SF_INSTRUMENT inst;
     int nframes;
     std::string filename;
+
+    enclosures.push_back(enclosure());
+    enclosures[0].midichannel = 1;
+    enclosures[0].midinote = 7;
+    enclosures[0].maxVolume = 1.0;
+    enclosures[0].minVolume = 1.0;
+    enclosures[0].minLowpass = 5000;
+    enclosures[0].maxLowpass = 10000;
+    enclosures[0].minHighpass = 500;
+    enclosures[0].maxHighpass = 1000;
 
     int selectedThread = 0;
     for (long unsigned int i = 0; i < config["samples"].size(); i++)
