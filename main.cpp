@@ -182,10 +182,11 @@ void audioThreadFunc(int index)
                             val = ((it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult);
                             if (it.enclosed == 1)
                             {
-                                lowpassFilter->calculate_coeffs(1000, SAMPLE_RATE);
-                                highpassFilter->calculate_coeffs(100, SAMPLE_RATE);
+                                lowpassFilter->calculate_coeffs(500, SAMPLE_RATE); // cut off everything above this frequency
+                                highpassFilter->calculate_coeffs(200, SAMPLE_RATE); // cut off everything below this frequency
                                 val = lowpassFilter->process(val);
                                 val = highpassFilter->process(val);
+                                val *= 1.0;
                             }
                             val = val * fadeoutvol * fadeinvol * globalVolume;
                             workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
