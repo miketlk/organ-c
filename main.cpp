@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <sndfile.hh>
-#include <samplerate.h>
 #include "portaudio.h"
 #include "pa_linux_alsa.h"
 #include <thread>
