@@ -43,7 +43,7 @@ typedef struct
     int loopStart = 0;
     int loopEnd = 0;
     int channel = 1;
-    float pitchMult = 1.0;
+    float pitchMult = 1.5;
     float volMult = 1.0;
 } sample;
 
@@ -102,6 +102,8 @@ void audioThreadFunc(int index)
     float val;
     float pitch = 1.0;
     float vol = 1.0;
+    int k = 0;
+    float j;
     std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
     std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
     while (!exit_thread_flag)
@@ -122,22 +124,23 @@ void audioThreadFunc(int index)
                         vol = it.volMult;
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
-                            val = it.data.at(it.pos + i);
-                            val *= vol;
+                            j = it.pos + i * pitch;
+                            k = (int)j;
+                            if (k > it.loopEnd - 2 - pitch)
+                            {
+                                if (it.loops == 1)
+                                {
+                                    it.pos = it.loopStart + pitch;
+                                }
+                                else
+                                {
+                                    it.playing = 0;
+                                }
+                            }
+                            val = (it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * vol;
                             workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
                         }
-                        it.pos += FRAMES_PER_BUFFER;
-                        if (it.pos > it.loopEnd - FRAMES_PER_BUFFER)
-                        {
-                            if (it.loops == 1)
-                            {
-                                it.pos = it.loopStart;
-                            }
-                            else
-                            {
-                                it.playing = 0;
-                            }
-                        }
+                        it.pos += FRAMES_PER_BUFFER * pitch;
                     }
                 }
             }
