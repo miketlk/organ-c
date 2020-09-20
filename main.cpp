@@ -23,6 +23,8 @@ using json = nlohmann::json;
 #define NUM_CHANNELS (2)
 #define FRAMES_PER_BUFFER (256)
 #define SAMPLE_SILENCE (0.0f)
+#define FADEOUT_LENGTH (1000)
+#define FADEIN_LENGTH (1000)
 
 std::atomic<bool> exit_thread_flag{false};
 
@@ -48,8 +50,8 @@ typedef struct
     int enclosed = 0;
     int enclosure = 0;
     int fadeout = 0;
-    float fadeoutPos = 100000;
-    int fadein = 1;
+    float fadeoutPos = FADEOUT_LENGTH;
+    int fadein = 0;
     float fadeinPos = 0;
 } sample;
 
@@ -159,19 +161,19 @@ void audioThreadFunc(int index)
                                 }
                                 else
                                 {
-                                    fadeoutvol = it.fadeoutPos / 100000;
+                                    fadeoutvol = it.fadeoutPos / FADEOUT_LENGTH;
                                     it.fadeoutPos -= 1;
                                 }
                             }
                             if (it.fadein == 1)
                             {
-                                if (it.fadeinPos == 100000)
+                                if (it.fadeinPos == FADEIN_LENGTH)
                                 {
                                     it.fadein = 0;
                                 }
                                 else
                                 {
-                                    fadeinvol = it.fadeinPos / 100000;
+                                    fadeinvol = it.fadeinPos / FADEIN_LENGTH;
                                     it.fadeinPos += 1;
                                 }
                             }
