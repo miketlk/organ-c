@@ -80,25 +80,7 @@ typedef struct
     int enclosed = 0;
     int enclosure = 0;
     std::vector<enclosurestep> steps;
-    void recalculate()
-    {
-        volume = (((maxVolume - minVolume) / 127) * selectedValue) + minVolume;
-        lowpass = (int)(((maxLowpass - minLowpass) / 127) * selectedValue) + minLowpass;
-        highpass = (int)(((maxHighpass - minHighpass) / 127) * selectedValue) + minHighpass;
-        if (enclosed == 1)
-        {
-            enclosures[enclosure].recalculate();
-            volume *= enclosures[enclosure].volume;
-            if (enclosures[enclosure].highpass > highpass)
-            {
-                highpass = enclosures[enclosure].highpass;
-            }
-            if (enclosures[enclosure].lowpass < lowpass)
-            {
-                lowpass = enclosures[enclosure].lowpass;
-            }
-        }
-    };
+    void recalculate();
     void chooseValue(int input)
     {
         selectedValue = -1;
@@ -121,6 +103,26 @@ float globalPitch = 1.0;
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
 std::vector<enclosure> enclosures;
+
+void enclosure::recalculate()
+{
+    volume = (((maxVolume - minVolume) / 127) * selectedValue) + minVolume;
+    lowpass = (int)(((maxLowpass - minLowpass) / 127) * selectedValue) + minLowpass;
+    highpass = (int)(((maxHighpass - minHighpass) / 127) * selectedValue) + minHighpass;
+    if (enclosed == 1)
+    {
+        enclosures[enclosure].recalculate();
+        volume *= enclosures[enclosure].volume;
+        if (enclosures[enclosure].highpass > highpass)
+        {
+            highpass = enclosures[enclosure].highpass;
+        }
+        if (enclosures[enclosure].lowpass < lowpass)
+        {
+            lowpass = enclosures[enclosure].lowpass;
+        }
+    }
+};
 
 void signalHandler(int signum)
 {
