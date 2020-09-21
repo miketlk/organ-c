@@ -155,8 +155,7 @@ typedef struct
     }
 } tremulant;
 
-float globalVolume = 1.0;
-float globalPitch = 1.0;
+
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
 std::unordered_map<std::string, windchest> windchests;
@@ -247,7 +246,6 @@ void audioThreadFunc(int index)
                         {
                             pitch += tremulants.at(it.tremulant).pitchMult;
                         }
-                        pitch *= globalPitch;
                         fadeoutvol = 1.0;
                         fadeinvol = 1.0;
                         enclosurevol = 1.0;
@@ -304,7 +302,7 @@ void audioThreadFunc(int index)
                                 val = highpassFilter->process(val);
                                 val *= (((enclosurevol - it.previousEnclosureVol) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureVol;
                             }
-                            val = val * fadeoutvol * fadeinvol * globalVolume;
+                            val = val * fadeoutvol * fadeinvol;
                             workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
                         }
                         it.previousEnclosureVol = enclosurevol;
