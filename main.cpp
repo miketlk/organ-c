@@ -304,7 +304,7 @@ void voicingThreadFunc()
     }
 }
 
-void windingThreadFunc()
+void simThreadFunc()
 {
     while (!exit_thread_flag)
     {
@@ -439,7 +439,7 @@ int main(void)
     };
 
     std::thread voicingThread(voicingThreadFunc);
-    std::thread windingThread(windingThreadFunc);
+    std::thread simThread(simThreadFunc);
 
     PaAlsaStreamInfo info;
     PaStreamParameters outputParameters;
@@ -522,7 +522,7 @@ int main(void)
     }
 
     voicingThread.join();
-    windingThread.join();
+    simThread.join();
 
     for (long unsigned int i = 0; i < audioThreads.size(); i++)
     {
