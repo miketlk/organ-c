@@ -304,7 +304,7 @@ void voicingThreadFunc()
     }
 }
 
-void simThreadFunc()
+void windThreadFunc()
 {
     while (!exit_thread_flag)
     {
@@ -316,6 +316,13 @@ void simThreadFunc()
         {
             it.second.recalculate();
         }
+    }
+}
+
+void tremThreadFunc()
+{
+    while (!exit_thread_flag)
+    {
     }
 }
 
@@ -359,7 +366,7 @@ int main(void)
 {
     signal(2, signalHandler); // SIGINT
     const auto processor_count = std::thread::hardware_concurrency();
-    int available_threads = processor_count - 7;
+    int available_threads = processor_count - 8;
     //std::cout << available_threads << std::endl;
 
     std::ifstream ii("config.json");
@@ -439,7 +446,8 @@ int main(void)
     };
 
     std::thread voicingThread(voicingThreadFunc);
-    std::thread simThread(simThreadFunc);
+    std::thread windThread(windThreadFunc);
+    std::thread tremThread(tremThreadFunc);
 
     PaAlsaStreamInfo info;
     PaStreamParameters outputParameters;
@@ -522,7 +530,8 @@ int main(void)
     }
 
     voicingThread.join();
-    simThread.join();
+    windThread.join();
+    tremThread.join();
 
     for (long unsigned int i = 0; i < audioThreads.size(); i++)
     {
