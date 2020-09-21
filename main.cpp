@@ -65,7 +65,7 @@ typedef struct
     int min;
     int max;
     int value;
-} enclosureStage;
+} shoeStage;
 
 typedef struct
 {
@@ -85,7 +85,7 @@ typedef struct
     int midinote;
     int selectedValue = 127;
     std::string enclosure = "";
-    std::vector<enclosureStage> stages;
+    std::vector<shoeStage> stages;
     void recalculate();
     void chooseValue(int input)
     {
@@ -144,6 +144,14 @@ typedef struct
 {
     int active = 0;
     float pitchMult = 0.0;
+    int speedMidichannel;
+    int speedMidinote;
+    int speedSelectedValue = 127;
+    int depthMidichannel;
+    int depthMidinote;
+    int depthSelectedValue = 127;
+    std::vector<shoeStage> speedStages;
+    std::vector<shoeStage> depthStages;
     void recalculate()
     {
         if (active == 1)
@@ -154,7 +162,37 @@ typedef struct
         {
             pitchMult = 0.0;
         }
-    }
+    };
+    void chooseSpeedValue(int input)
+    {
+        speedSelectedValue = -1;
+        for (auto &it : speedStages)
+        {
+            if (input >= it.min && input <= it.max)
+            {
+                speedSelectedValue = it.value;
+            }
+        }
+        if (speedSelectedValue == -1)
+        {
+            speedSelectedValue = input;
+        }
+    };
+    void chooseDepthValue(int input)
+    {
+        depthSelectedValue = -1;
+        for (auto &it : depthStages)
+        {
+            if (input >= it.min && input <= it.max)
+            {
+                depthSelectedValue = it.value;
+            }
+        }
+        if (depthSelectedValue == -1)
+        {
+            depthSelectedValue = input;
+        }
+    };
 } tremulant;
 
 std::vector<sample> samples;
@@ -305,7 +343,7 @@ void audioThreadFunc(int index)
                                     it.fadeinPos += 1;
                                 }
                             }
-                            val = ((it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult);
+                            val = (it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult;
                             if (it.enclosure != "")
                             {
                                 lowpassFilter->calculate_coeffs((int)(((enclosurelowpass - it.previousEnclosureLowpass) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureLowpass, SAMPLE_RATE);     // cut off everything above this frequency
@@ -399,6 +437,18 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
                 it.second.chooseValue(messagevalue);
             }
         }
+        // Handle trems
+        for (auto &it : tremulants)
+        {
+            if (it.second.speedMidichannel == messagechannel && it.second.speedMidinote == midinote)
+            {
+                it.second.chooseSpeedValue(messagevalue);
+            }
+            if (it.second.depthMidichannel == messagechannel && it.second.depthMidinote == midinote)
+            {
+                it.second.chooseDepthValue(messagevalue);
+            }
+        }
     }
 }
 
@@ -431,7 +481,7 @@ int main(void)
         enclosures.at(config["enclosures"][i]["name"]).volumeLogFactor = config["enclosures"][i]["volumeLogFactor"];
         for (long unsigned int ii = 0; ii < config["enclosures"][i]["stages"].size(); ii++)
         {
-            enclosures.at(config["enclosures"][i]["name"]).stages.push_back(enclosureStage());
+            enclosures.at(config["enclosures"][i]["name"]).stages.push_back(shoeStage());
             enclosures.at(config["enclosures"][i]["name"]).stages[ii].max = config["enclosures"][i]["stages"][ii]["max"];
             enclosures.at(config["enclosures"][i]["name"]).stages[ii].min = config["enclosures"][i]["stages"][ii]["min"];
             enclosures.at(config["enclosures"][i]["name"]).stages[ii].value = config["enclosures"][i]["stages"][ii]["value"];
