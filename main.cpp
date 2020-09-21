@@ -47,8 +47,7 @@ typedef struct
     int channel = 0;
     float pitchMult = 1.0;
     float volMult = 1.0;
-    int enclosed = 1;
-    int enclosure = 0;
+    std::string enclosure = "";
     float previousEnclosureVol = 1.0;
     int fadeout = 0;
     float fadeoutPos = 0;
@@ -77,8 +76,7 @@ typedef struct
     int midichannel;
     int midinote;
     int selectedValue = 127;
-    int enclosed = 0;
-    int enclosure = 0;
+    std::string enclosure = "";
     std::vector<enclosureStage> stages;
     void recalculate();
     void chooseValue(int input)
@@ -102,7 +100,7 @@ float globalVolume = 1.0;
 float globalPitch = 1.0;
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
-std::vector<enclosure> enclosures;
+std::unordered_map<std::string, enclosure> enclosures;
 
 void enclosure::recalculate()
 {
@@ -114,17 +112,17 @@ void enclosure::recalculate()
     volume = (((maxVolume - minVolume) / 127) * selectedValue) + minVolume;
     lowpass = (int)(((maxLowpass - minLowpass) / 127) * selectedValue) + minLowpass;
     highpass = (int)(((maxHighpass - minHighpass) / 127) * selectedValue) + minHighpass;
-    if (enclosed == 1)
+    if (enclosure != "")
     {
-        enclosures[enclosure].recalculate();
-        volume *= enclosures[enclosure].volume;
-        if (enclosures[enclosure].highpass > highpass)
+        enclosures.at(enclosure).recalculate();
+        volume *= enclosures.at(enclosure).volume;
+        if (enclosures.at(enclosure).highpass > highpass)
         {
-            highpass = enclosures[enclosure].highpass;
+            highpass = enclosures.at(enclosure).highpass;
         }
-        if (enclosures[enclosure].lowpass < lowpass)
+        if (enclosures.at(enclosure).lowpass < lowpass)
         {
-            lowpass = enclosures[enclosure].lowpass;
+            lowpass = enclosures.at(enclosure).lowpass;
         }
     }
 };
@@ -210,13 +208,12 @@ void audioThreadFunc(int index)
                         fadeoutvol = 1.0;
                         fadeinvol = 1.0;
                         enclosurevol = 1.0;
-                        if (it.enclosed == 1)
+                        if (it.enclosure != "")
                         {
-                            //std::cout << enclosures[it.enclosure].highpass << std::endl;
-                            enclosures[it.enclosure].recalculate();
-                            lowpassFilter->calculate_coeffs(enclosures[it.enclosure].lowpass, SAMPLE_RATE);   // cut off everything above this frequency
-                            highpassFilter->calculate_coeffs(enclosures[it.enclosure].highpass, SAMPLE_RATE); // cut off everything below this frequency
-                            enclosurevol = enclosures[it.enclosure].volume;
+                            enclosures.at(it.enclosure).recalculate();
+                            lowpassFilter->calculate_coeffs(enclosures.at(it.enclosure).lowpass, SAMPLE_RATE);   // cut off everything above this frequency
+                            highpassFilter->calculate_coeffs(enclosures.at(it.enclosure).highpass, SAMPLE_RATE); // cut off everything below this frequency
+                            enclosurevol = enclosures.at(it.enclosure).volume;
                         }
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
@@ -242,7 +239,7 @@ void audioThreadFunc(int index)
                                 }
                                 else
                                 {
-                                    fadeoutvol = exp(-1*(it.fadeoutPos / FADEOUT_LENGTH)) * (1 - (it.fadeoutPos / FADEOUT_LENGTH));
+                                    fadeoutvol = exp(-1 * (it.fadeoutPos / FADEOUT_LENGTH)) * (1 - (it.fadeoutPos / FADEOUT_LENGTH));
                                     it.fadeoutPos += 1;
                                 }
                             }
@@ -254,12 +251,12 @@ void audioThreadFunc(int index)
                                 }
                                 else
                                 {
-                                    fadeinvol = exp(1*((it.fadeinPos / FADEIN_LENGTH)-1)) * (it.fadeinPos / FADEIN_LENGTH);
+                                    fadeinvol = exp(1 * ((it.fadeinPos / FADEIN_LENGTH) - 1)) * (it.fadeinPos / FADEIN_LENGTH);
                                     it.fadeinPos += 1;
                                 }
                             }
                             val = ((it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult);
-                            if (it.enclosed == 1)
+                            if (it.enclosure != "")
                             {
                                 val = lowpassFilter->process(val);
                                 val = highpassFilter->process(val);
@@ -323,9 +320,9 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
         // Handle expression
         for (auto &it : enclosures)
         {
-            if (it.midichannel == messagechannel && it.midinote == midinote)
+            if (it.second.midichannel == messagechannel && it.second.midinote == midinote)
             {
-                it.chooseValue(messagevalue);
+                it.second.chooseValue(messagevalue);
             }
         }
     }
@@ -345,28 +342,27 @@ int main(void)
 
     for (long unsigned int i = 0; i < config["enclosures"].size(); i++)
     {
-        enclosures.insert(enclosures.begin() + config["enclosures"][i]["id"], enclosure());
-        enclosures[config["enclosures"][i]["id"]].midichannel = config["enclosures"][i]["midichannel"];
-        enclosures[config["enclosures"][i]["id"]].midinote = config["enclosures"][i]["midinote"];
-        enclosures[config["enclosures"][i]["id"]].enclosed = config["enclosures"][i]["enclosed"];
-        enclosures[config["enclosures"][i]["id"]].enclosure = config["enclosures"][i]["enclosure"];
-        enclosures[config["enclosures"][i]["id"]].maxHighpass = config["enclosures"][i]["maxHighpass"];
-        enclosures[config["enclosures"][i]["id"]].minHighpass = config["enclosures"][i]["minHighpass"];
-        enclosures[config["enclosures"][i]["id"]].maxLowpass = config["enclosures"][i]["maxLowpass"];
-        enclosures[config["enclosures"][i]["id"]].minLowpass = config["enclosures"][i]["minLowpass"];
-        enclosures[config["enclosures"][i]["id"]].maxVolume = config["enclosures"][i]["maxVolume"];
-        enclosures[config["enclosures"][i]["id"]].minVolume = config["enclosures"][i]["minVolume"];
+        enclosures[config["enclosures"][i]["name"]] = enclosure();
+        enclosures.at(config["enclosures"][i]["name"]).midichannel = config["enclosures"][i]["midichannel"];
+        enclosures.at(config["enclosures"][i]["name"]).midinote = config["enclosures"][i]["midinote"];
+        enclosures.at(config["enclosures"][i]["name"]).enclosure = config["enclosures"][i]["enclosure"];
+        enclosures.at(config["enclosures"][i]["name"]).maxHighpass = config["enclosures"][i]["maxHighpass"];
+        enclosures.at(config["enclosures"][i]["name"]).minHighpass = config["enclosures"][i]["minHighpass"];
+        enclosures.at(config["enclosures"][i]["name"]).maxLowpass = config["enclosures"][i]["maxLowpass"];
+        enclosures.at(config["enclosures"][i]["name"]).minLowpass = config["enclosures"][i]["minLowpass"];
+        enclosures.at(config["enclosures"][i]["name"]).maxVolume = config["enclosures"][i]["maxVolume"];
+        enclosures.at(config["enclosures"][i]["name"]).minVolume = config["enclosures"][i]["minVolume"];
         for (long unsigned int ii = 0; ii < config["enclosures"][i]["stages"].size(); ii++)
         {
-            enclosures[config["enclosures"][i]["id"]].stages.push_back(enclosureStage());
-            enclosures[config["enclosures"][i]["id"]].stages[ii].max = config["enclosures"][i]["stages"][i]["max"];
-            enclosures[config["enclosures"][i]["id"]].stages[ii].min = config["enclosures"][i]["stages"][i]["min"];
-            enclosures[config["enclosures"][i]["id"]].stages[ii].value = config["enclosures"][i]["stages"][i]["value"];
+            enclosures.at(config["enclosures"][i]["name"]).stages.push_back(enclosureStage());
+            enclosures.at(config["enclosures"][i]["name"]).stages[ii].max = config["enclosures"][i]["stages"][ii]["max"];
+            enclosures.at(config["enclosures"][i]["name"]).stages[ii].min = config["enclosures"][i]["stages"][ii]["min"];
+            enclosures.at(config["enclosures"][i]["name"]).stages[ii].value = config["enclosures"][i]["stages"][ii]["value"];
         }
     }
     for (auto &it : enclosures)
     {
-        it.recalculate();
+        it.second.recalculate();
     }
 
     SNDFILE *wf;

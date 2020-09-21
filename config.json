@@ -12,11 +12,10 @@
     ],
     "enclosures": [
         {
-            "id": 0,
+            "name": "swell",
             "midichannel": 1,
             "midinote": 7,
-            "enclosed": 0,
-            "enclosure": 0,
+            "enclosure": "",
             "maxHighpass": 1000,
             "minHighpass": 500,
             "maxLowpass": 10000,
