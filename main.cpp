@@ -66,12 +66,15 @@ typedef struct
 {
     float maxHighpass;
     float minHighpass;
+    float highpassLogFactor = 1.0;
     int highpass = 100;
     float maxLowpass;
     float minLowpass;
+    float lowpassLogFactor = 1.0;
     int lowpass = 5000;
     float maxVolume;
     float minVolume;
+    float volumeLogFactor = 1.0;
     float volume = 1.0;
     int midichannel;
     int midinote;
@@ -348,10 +351,13 @@ int main(void)
         enclosures.at(config["enclosures"][i]["name"]).enclosure = config["enclosures"][i]["enclosure"];
         enclosures.at(config["enclosures"][i]["name"]).maxHighpass = config["enclosures"][i]["maxHighpass"];
         enclosures.at(config["enclosures"][i]["name"]).minHighpass = config["enclosures"][i]["minHighpass"];
+        enclosures.at(config["enclosures"][i]["name"]).highpassLogFactor = config["enclosures"][i]["highpassLogFactor"];
         enclosures.at(config["enclosures"][i]["name"]).maxLowpass = config["enclosures"][i]["maxLowpass"];
         enclosures.at(config["enclosures"][i]["name"]).minLowpass = config["enclosures"][i]["minLowpass"];
+        enclosures.at(config["enclosures"][i]["name"]).lowpassLogFactor = config["enclosures"][i]["lowpassLogFactor"];
         enclosures.at(config["enclosures"][i]["name"]).maxVolume = config["enclosures"][i]["maxVolume"];
         enclosures.at(config["enclosures"][i]["name"]).minVolume = config["enclosures"][i]["minVolume"];
+        enclosures.at(config["enclosures"][i]["name"]).volumeLogFactor = config["enclosures"][i]["volumeLogFactor"];
         for (long unsigned int ii = 0; ii < config["enclosures"][i]["stages"].size(); ii++)
         {
             enclosures.at(config["enclosures"][i]["name"]).stages.push_back(enclosureStage());

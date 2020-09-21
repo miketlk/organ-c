@@ -18,10 +18,13 @@
             "enclosure": "",
             "maxHighpass": 1000,
             "minHighpass": 500,
+            "highpassLogFactor": 1.0,
             "maxLowpass": 10000,
             "minLowpass": 5000,
+            "lowpassLogFactor": 1.0,
             "maxVolume": 1.0,
             "minVolume": 0.0,
+            "volumeLogFactor": 1.0,
             "stages": [
                 {
                     "max": 50,
