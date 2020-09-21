@@ -52,6 +52,8 @@ typedef struct
     std::string windchest = "";
     std::string tremulant = "";
     float previousEnclosureVol = 1.0;
+    int previousEnclosureHighpass = -1;
+    int previousEnclosureLowpass = -1;
     int fadeout = 0;
     float fadeoutPos = 0;
     int fadein = 0;
@@ -155,7 +157,6 @@ typedef struct
     }
 } tremulant;
 
-
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
 std::unordered_map<std::string, windchest> windchests;
@@ -217,6 +218,8 @@ void audioThreadFunc(int index)
     float fadeinvol;
     float val;
     float enclosurevol;
+    int enclosurehighpass;
+    int enclosurelowpass;
     std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
     std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
 
@@ -248,12 +251,19 @@ void audioThreadFunc(int index)
                         }
                         fadeoutvol = 1.0;
                         fadeinvol = 1.0;
-                        enclosurevol = 1.0;
                         if (it.enclosure != "")
                         {
-                            lowpassFilter->calculate_coeffs(enclosures.at(it.enclosure).lowpass, SAMPLE_RATE);   // cut off everything above this frequency
-                            highpassFilter->calculate_coeffs(enclosures.at(it.enclosure).highpass, SAMPLE_RATE); // cut off everything below this frequency
                             enclosurevol = enclosures.at(it.enclosure).volume;
+                            enclosurehighpass = enclosures.at(it.enclosure).highpass;
+                            enclosurelowpass = enclosures.at(it.enclosure).lowpass;
+                            if (it.previousEnclosureHighpass == -1)
+                            {
+                                it.previousEnclosureHighpass = enclosurehighpass;
+                            }
+                            if (it.previousEnclosureLowpass == -1)
+                            {
+                                it.previousEnclosureLowpass = enclosurelowpass;
+                            }
                         }
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
@@ -298,6 +308,8 @@ void audioThreadFunc(int index)
                             val = ((it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult);
                             if (it.enclosure != "")
                             {
+                                lowpassFilter->calculate_coeffs((int)(((enclosurelowpass - it.previousEnclosureLowpass) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureLowpass, SAMPLE_RATE);     // cut off everything above this frequency
+                                highpassFilter->calculate_coeffs((int)(((enclosurehighpass - it.previousEnclosureHighpass) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureHighpass, SAMPLE_RATE); // cut off everything below this frequency
                                 val = lowpassFilter->process(val);
                                 val = highpassFilter->process(val);
                                 val *= (((enclosurevol - it.previousEnclosureVol) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureVol;
@@ -306,6 +318,8 @@ void audioThreadFunc(int index)
                             workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
                         }
                         it.previousEnclosureVol = enclosurevol;
+                        it.previousEnclosureHighpass = enclosurehighpass;
+                        it.previousEnclosureLowpass = enclosurelowpass;
                         it.pos += FRAMES_PER_BUFFER * pitch;
                     }
                 }
