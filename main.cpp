@@ -51,7 +51,7 @@ typedef struct
     int enclosure = 0;
     float previousEnclosureVol = 1.0;
     int fadeout = 0;
-    float fadeoutPos = FADEOUT_LENGTH;
+    float fadeoutPos = 0;
     int fadein = 0;
     float fadeinPos = 0;
 } sample;
@@ -106,6 +106,11 @@ std::vector<enclosure> enclosures;
 
 void enclosure::recalculate()
 {
+    /*if (maxVolume > minVolume) {
+        volume = exp(1*(((maxVolume - minVolume) / 127)-1)) * (selectedValue / 127);
+    } else {
+        volume = exp(-1*((maxVolume - minVolume) / 127)) * (1 - (selectedValue / 127));
+    }*/
     volume = (((maxVolume - minVolume) / 127) * selectedValue) + minVolume;
     lowpass = (int)(((maxLowpass - minLowpass) / 127) * selectedValue) + minLowpass;
     highpass = (int)(((maxHighpass - minHighpass) / 127) * selectedValue) + minHighpass;
@@ -230,15 +235,15 @@ void audioThreadFunc(int index)
                             }
                             if (it.fadeout == 1)
                             {
-                                if (it.fadeoutPos == 0)
+                                if (it.fadeoutPos == FADEOUT_LENGTH)
                                 {
                                     it.fadeout = 0;
                                     it.playing = 0;
                                 }
                                 else
                                 {
-                                    fadeoutvol = it.fadeoutPos / FADEOUT_LENGTH;
-                                    it.fadeoutPos -= 1;
+                                    fadeoutvol = exp(-1*(it.fadeoutPos / FADEOUT_LENGTH)) * (1 - (it.fadeoutPos / FADEOUT_LENGTH));
+                                    it.fadeoutPos += 1;
                                 }
                             }
                             if (it.fadein == 1)
@@ -249,7 +254,7 @@ void audioThreadFunc(int index)
                                 }
                                 else
                                 {
-                                    fadeinvol = it.fadeinPos / FADEIN_LENGTH;
+                                    fadeinvol = exp(1*((it.fadeinPos / FADEIN_LENGTH)-1)) * (it.fadeinPos / FADEIN_LENGTH);
                                     it.fadeinPos += 1;
                                 }
                             }
