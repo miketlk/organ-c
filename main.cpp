@@ -16,6 +16,7 @@
 #include <string>
 #include <csignal>
 #include <atomic>
+#include <chrono>
 
 using json = nlohmann::json;
 
@@ -49,6 +50,7 @@ typedef struct
     float volMult = 1.0;
     std::string enclosure = "";
     std::string windchest = "";
+    std::string tremulant = "";
     float previousEnclosureVol = 1.0;
     int fadeout = 0;
     float fadeoutPos = 0;
@@ -136,11 +138,29 @@ typedef struct
     }
 } windchest;
 
+typedef struct
+{
+    int active = 0;
+    float pitchMult = 1.0;
+    void recalculate()
+    {
+        if (active == 1)
+        {
+            pitchMult = 1.0;
+        }
+        else
+        {
+            pitchMult = 1.0;
+        }
+    }
+} tremulant;
+
 float globalVolume = 1.0;
 float globalPitch = 1.0;
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
 std::unordered_map<std::string, windchest> windchests;
+std::unordered_map<std::string, tremulant> tremulants;
 
 void signalHandler(int signum)
 {
@@ -222,6 +242,10 @@ void audioThreadFunc(int index)
                         if (it.windchest != "")
                         {
                             pitch *= windchests.at(it.windchest).pitchMult;
+                        }
+                        if (it.tremulant != "")
+                        {
+                            pitch *= tremulants.at(it.tremulant).pitchMult;
                         }
                         pitch *= globalPitch;
                         fadeoutvol = 1.0;
@@ -323,6 +347,11 @@ void tremThreadFunc()
 {
     while (!exit_thread_flag)
     {
+        for (auto &it : tremulants)
+        {
+            it.second.recalculate();
+        }
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
     }
 }
 
