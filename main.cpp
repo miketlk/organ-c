@@ -131,26 +131,26 @@ void enclosure::recalculate()
 
 typedef struct
 {
-    float pitchMult = 1.0;
+    float pitchMult = 0.0;
     void recalculate()
     {
-        pitchMult = 1.0;
+        pitchMult = 0.0;
     }
 } windchest;
 
 typedef struct
 {
     int active = 0;
-    float pitchMult = 1.0;
+    float pitchMult = 0.0;
     void recalculate()
     {
         if (active == 1)
         {
-            pitchMult = 1.0;
+            pitchMult = 0.0;
         }
         else
         {
-            pitchMult = 1.0;
+            pitchMult = 0.0;
         }
     }
 } tremulant;
@@ -241,11 +241,11 @@ void audioThreadFunc(int index)
                         pitch = it.pitchMult;
                         if (it.windchest != "")
                         {
-                            pitch *= windchests.at(it.windchest).pitchMult;
+                            pitch += windchests.at(it.windchest).pitchMult;
                         }
                         if (it.tremulant != "")
                         {
-                            pitch *= tremulants.at(it.tremulant).pitchMult;
+                            pitch += tremulants.at(it.tremulant).pitchMult;
                         }
                         pitch *= globalPitch;
                         fadeoutvol = 1.0;
