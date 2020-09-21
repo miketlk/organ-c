@@ -48,6 +48,7 @@ typedef struct
     float pitchMult = 1.0;
     float volMult = 1.0;
     std::string enclosure = "";
+    std::string windchest = "";
     float previousEnclosureVol = 1.0;
     int fadeout = 0;
     float fadeoutPos = 0;
@@ -99,10 +100,6 @@ typedef struct
     };
 } enclosure;
 
-float globalVolume = 1.0;
-float globalPitch = 1.0;
-std::vector<sample> samples;
-std::vector<threadItem> audioThreads;
 std::unordered_map<std::string, enclosure> enclosures;
 
 void enclosure::recalculate()
@@ -129,6 +126,21 @@ void enclosure::recalculate()
         }
     }
 };
+
+typedef struct
+{
+    float pitchMult = 1.0;
+    void recalculate()
+    {
+        pitchMult = 1.0;
+    }
+} windchest;
+
+float globalVolume = 1.0;
+float globalPitch = 1.0;
+std::vector<sample> samples;
+std::vector<threadItem> audioThreads;
+std::unordered_map<std::string, windchest> windchests;
 
 void signalHandler(int signum)
 {
@@ -207,13 +219,16 @@ void audioThreadFunc(int index)
                     if (it.thread == index && it.playing == 1)
                     {
                         pitch = it.pitchMult;
+                        if (it.windchest != "")
+                        {
+                            pitch *= windchests.at(it.windchest).pitchMult;
+                        }
                         pitch *= globalPitch;
                         fadeoutvol = 1.0;
                         fadeinvol = 1.0;
                         enclosurevol = 1.0;
                         if (it.enclosure != "")
                         {
-                            enclosures.at(it.enclosure).recalculate();
                             lowpassFilter->calculate_coeffs(enclosures.at(it.enclosure).lowpass, SAMPLE_RATE);   // cut off everything above this frequency
                             highpassFilter->calculate_coeffs(enclosures.at(it.enclosure).highpass, SAMPLE_RATE); // cut off everything below this frequency
                             enclosurevol = enclosures.at(it.enclosure).volume;
@@ -293,6 +308,14 @@ void windingThreadFunc()
 {
     while (!exit_thread_flag)
     {
+        for (auto &it : windchests)
+        {
+            it.second.recalculate();
+        }
+        for (auto &it : enclosures)
+        {
+            it.second.recalculate();
+        }
     }
 }
 
