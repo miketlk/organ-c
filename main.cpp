@@ -29,7 +29,7 @@ using json = nlohmann::json;
 #define FADEIN_LENGTH (1000)
 
 #ifndef M_PI
-#define M_PI  (3.14159265)
+#define M_PI (3.14159265)
 #endif
 
 std::atomic<bool> exit_thread_flag{false};
@@ -164,10 +164,11 @@ typedef struct
     {
         if (active == 1)
         {
-            if (index > frequency) {
+            if (index > frequency)
+            {
                 index = 0;
             }
-            pitchMult = sin( ((double)index/(double)frequency) * M_PI * 2. ) * depth;
+            pitchMult = sin(((double)index / (double)frequency) * M_PI * 2.) * depth + (depth / 2);
             index += 1;
         }
         else
