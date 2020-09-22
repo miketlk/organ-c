@@ -17,6 +17,7 @@
 #include <csignal>
 #include <atomic>
 #include <chrono>
+#include <math.h>
 
 using json = nlohmann::json;
 
@@ -26,6 +27,10 @@ using json = nlohmann::json;
 #define SAMPLE_SILENCE (0.0f)
 #define FADEOUT_LENGTH (1000)
 #define FADEIN_LENGTH (1000)
+
+#ifndef M_PI
+#define M_PI  (3.14159265)
+#endif
 
 std::atomic<bool> exit_thread_flag{false};
 
@@ -50,7 +55,7 @@ typedef struct
     float volMult = 1.0;
     std::string enclosure = "";
     std::string windchest = "";
-    std::string tremulant = "";
+    std::string tremulant = "main";
     float previousEnclosureVol = 1.0;
     int previousEnclosureHighpass = -1;
     int previousEnclosureLowpass = -1;
@@ -142,7 +147,7 @@ typedef struct
 
 typedef struct
 {
-    int active = 0;
+    int active = 1;
     float pitchMult = 0.0;
     int speedMidichannel;
     int speedMidinote;
@@ -150,18 +155,26 @@ typedef struct
     int depthMidichannel;
     int depthMidinote;
     int depthSelectedValue = 127;
+    int index = 0;
+    int frequency = 5000;
+    float depth = -0.015;
     std::vector<shoeStage> speedStages;
     std::vector<shoeStage> depthStages;
     void recalculate()
     {
         if (active == 1)
         {
-            pitchMult = 0.0;
+            if (index > frequency) {
+                index = 0;
+            }
+            pitchMult = sin( ((double)index/(double)frequency) * M_PI * 2. ) * depth;
+            index += 1;
         }
         else
         {
             pitchMult = 0.0;
         }
+        //std::cout << pitchMult << std::endl;
     };
     void chooseSpeedValue(int input)
     {
@@ -463,6 +476,8 @@ int main(void)
     std::ifstream ii("config.json");
     json config;
     ii >> config;
+
+    tremulants["main"] = tremulant();
 
     for (long unsigned int i = 0; i < config["enclosures"].size(); i++)
     {
