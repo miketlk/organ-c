@@ -109,9 +109,9 @@ std::unordered_map<std::string, enclosure> enclosures;
 void enclosure::recalculate()
 {
     /*if (maxVolume > minVolume) {
-        volume = exp(1*(((maxVolume - minVolume) / 127)-1)) * (selectedValue / 127);
+        volume = exp(-1*(((maxVolume - minVolume) / 127)-1)) * (selectedValue / 127);
     } else {
-        volume = exp(-1*((maxVolume - minVolume) / 127)) * (1 - (selectedValue / 127));
+        volume = exp(1*((maxVolume - minVolume) / 127)) * (1 - (selectedValue / 127));
     }*/
     volume = (((maxVolume - minVolume) / 127) * selectedValue) + minVolume;
     lowpass = (int)(((maxLowpass - minLowpass) / 127) * selectedValue) + minLowpass;
@@ -327,7 +327,7 @@ void audioThreadFunc(int index)
                                 }
                                 else
                                 {
-                                    fadeoutvol = exp(-1 * (it.fadeoutPos / FADEOUT_LENGTH)) * (1 - (it.fadeoutPos / FADEOUT_LENGTH));
+                                    fadeoutvol = exp(1 * (it.fadeoutPos / FADEOUT_LENGTH)) * (1 - (it.fadeoutPos / FADEOUT_LENGTH));
                                     it.fadeoutPos += 1;
                                 }
                             }
@@ -339,7 +339,7 @@ void audioThreadFunc(int index)
                                 }
                                 else
                                 {
-                                    fadeinvol = exp(1 * ((it.fadeinPos / FADEIN_LENGTH) - 1)) * (it.fadeinPos / FADEIN_LENGTH);
+                                    fadeinvol = exp(-1 * ((it.fadeinPos / FADEIN_LENGTH) - 1)) * (it.fadeinPos / FADEIN_LENGTH);
                                     it.fadeinPos += 1;
                                 }
                             }
