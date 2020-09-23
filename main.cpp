@@ -37,13 +37,13 @@ std::atomic<bool> exit_thread_flag{false};
 typedef struct
 {
     std::thread thread;
-    std::vector<float> buffer;
+    std::vector<double> buffer;
     int fillBuffer = 1;
 } threadItem;
 
 typedef struct
 {
-    std::vector<float> data;
+    std::vector<double> data;
     int pos = 0;
     int playing = 0;
     int thread = 1;
@@ -51,18 +51,18 @@ typedef struct
     int loopStart = 0;
     int loopEnd = 0;
     int channel = 0;
-    float pitchMult = 1.0;
-    float volMult = 1.0;
+    double pitchMult = 1.0;
+    double volMult = 1.0;
     std::string enclosure = "";
     std::string windchest = "";
     std::string tremulant = "main";
-    float previousEnclosureVol = 1.0;
+    double previousEnclosureVol = 1.0;
     int previousEnclosureHighpass = -1;
     int previousEnclosureLowpass = -1;
     int fadeout = 0;
-    float fadeoutPos = 0;
+    double fadeoutPos = 0;
     int fadein = 0;
-    float fadeinPos = 0;
+    double fadeinPos = 0;
 } sample;
 
 typedef struct
@@ -74,18 +74,18 @@ typedef struct
 
 typedef struct
 {
-    float maxHighpass;
-    float minHighpass;
-    float highpassLogFactor = 1.0;
+    double maxHighpass;
+    double minHighpass;
+    double highpassLogFactor = 1.0;
     int highpass = 100;
-    float maxLowpass;
-    float minLowpass;
-    float lowpassLogFactor = 1.0;
+    double maxLowpass;
+    double minLowpass;
+    double lowpassLogFactor = 1.0;
     int lowpass = 5000;
-    float maxVolume;
-    float minVolume;
-    float volumeLogFactor = 1.0;
-    float volume = 1.0;
+    double maxVolume;
+    double minVolume;
+    double volumeLogFactor = 1.0;
+    double volume = 1.0;
     int midichannel;
     int midinote;
     int selectedValue = 127;
@@ -138,7 +138,7 @@ void enclosure::recalculate()
 
 typedef struct
 {
-    float pitchMult = 0.0;
+    double pitchMult = 0.0;
     void recalculate()
     {
         pitchMult = 0.0;
@@ -148,7 +148,7 @@ typedef struct
 typedef struct
 {
     int active = 1;
-    float pitchMult = 0.0;
+    double pitchMult = 0.0;
     int speedMidichannel;
     int speedMidinote;
     int speedSelectedValue = 127;
@@ -157,7 +157,7 @@ typedef struct
     int depthSelectedValue = 127;
     int index = 0;
     int frequency = 5000;
-    float depth = -0.015;
+    double depth = -0.015;
     std::vector<shoeStage> speedStages;
     std::vector<shoeStage> depthStages;
     void recalculate()
@@ -236,8 +236,8 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
 
     long unsigned int frames = NUM_CHANNELS * FRAMES_PER_BUFFER;
 
-    std::vector<float> inbuffer(frames);
-    std::vector<float> outmainbuffer(frames);
+    std::vector<double> inbuffer(frames);
+    std::vector<double> outmainbuffer(frames);
     std::fill(outmainbuffer.begin(), outmainbuffer.end(), SAMPLE_SILENCE);
 
     for (j = 0; j < audioThreads.size(); j++)
@@ -263,16 +263,16 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
 void audioThreadFunc(int index)
 {
     unsigned long i;
-    float pitch;
+    double pitch;
     int k = 0;
-    float j;
-    float fadeoutvol;
-    float fadeinvol;
-    float val;
-    float enclosurevol;
+    double j;
+    double fadeoutvol;
+    double fadeinvol;
+    double val;
+    double enclosurevol;
     int enclosurehighpass;
     int enclosurelowpass;
-    std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
+    std::vector<double> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
     std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
 
     std::unique_ptr<SO_BUTTERWORTH_LPF> lowpassFilter(new SO_BUTTERWORTH_LPF);
@@ -529,13 +529,13 @@ int main(void)
         sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
 
         nframes = inFileInfo.frames * inFileInfo.channels;
-        float data[nframes];
+        double data[nframes];
 
-        sf_read_float(wf, data, nframes);
+        sf_read_double(wf, data, nframes);
 
         sf_close(wf);
 
-        std::vector<float> newbuffer(data, data + nframes);
+        std::vector<double> newbuffer(data, data + nframes);
         samples[i].data = newbuffer;
         samples[i].loopEnd = nframes;
         samples[i].playing = 1;
@@ -546,7 +546,7 @@ int main(void)
     for (int i = 0; i < available_threads; i++)
     {
         audioThreads.push_back(threadItem());
-        std::vector<float> newbuffer(FRAMES_PER_BUFFER * NUM_CHANNELS);
+        std::vector<double> newbuffer(FRAMES_PER_BUFFER * NUM_CHANNELS);
         audioThreads[i].buffer = newbuffer;
         std::fill(audioThreads[i].buffer.begin(), audioThreads[i].buffer.end(), SAMPLE_SILENCE);
         audioThreads[i].thread = std::thread(audioThreadFunc, i);
