@@ -55,7 +55,7 @@ typedef struct
     double volMult = 1.0;
     std::string enclosure = "";
     std::string windchest = "";
-    std::string tremulant = "main";
+    std::string tremulant = "";
     double previousEnclosureVol = 1.0;
     int previousEnclosureHighpass = -1;
     int previousEnclosureLowpass = -1;
@@ -594,7 +594,7 @@ int main(void)
         std::cout << ii << " - " << deviceInfo->name << std::endl;
     }
 
-    outputParameters.device = 9;
+    outputParameters.device = 6;
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
