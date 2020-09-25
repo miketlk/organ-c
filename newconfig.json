@@ -29,16 +29,12 @@
             "expression": "",
             "tremulant": "",
             "windchest": "",
-            "pipes": [
-                {
-                    "note": 36,
-                    "channelOne": 0,
-                    "channelTwo": -1,
-                    "expression": "",
-                    "tremulant": "",
-                    "windchest": ""
-                }
-            ]
+            "folder": "samples/gt_principal",
+            "trebleChannelOne": 0,
+            "trebleChannelTwo": -1,
+            "bassChannelOne": 0,
+            "bassChannelTwo": -1,
+            "trebleBassSplit": 45
         }
     ]
 }
