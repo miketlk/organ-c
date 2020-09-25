@@ -50,7 +50,7 @@ typedef struct
     int loops = 1;
     int loopStart = 0;
     int loopEnd = 0;
-    int channel = 0;
+    int channelOne = 0;
     int channelTwo = -1;
     double pitchMult = 1.0;
     double volMult = 1.0;
@@ -213,7 +213,8 @@ typedef struct
 
 typedef struct
 {
-    int channel = 0;
+    int channelOne = 0;
+    int channelTwo = -1;
     double pitchMult = 1.0;
     double volMult = 1.0;
     std::string enclosure = "";
@@ -223,6 +224,9 @@ typedef struct
 
 typedef struct
 {
+    std::string enclosure = "";
+    std::string windchest = "";
+    std::string tremulant = "";
     std::unordered_map<int, pipe> pipes;
 } rank;
 
@@ -387,12 +391,12 @@ void audioThreadFunc(int index)
                             val = val * fadeoutvol * fadeinvol;
                             if (it.channelTwo != -1)
                             {
-                                workingbuffer[(NUM_CHANNELS * i) + it.channel] += val * cos(it.panAngle);
+                                workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += val * cos(it.panAngle);
                                 workingbuffer[(NUM_CHANNELS * i) + it.channelTwo] += val * sin(it.panAngle);
                             }
                             else
                             {
-                                workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
+                                workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += val;
                             }
                         }
                         it.previousEnclosureVol = enclosurevol;

@@ -28,9 +28,16 @@
             "name": "gt-principal-8",
             "expression": "",
             "tremulant": "",
-            "chest": "",
+            "windchest": "",
             "pipes": [
-                
+                {
+                    "note": 36,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "expression": "",
+                    "tremulant": "",
+                    "windchest": ""
+                }
             ]
         }
     ]
