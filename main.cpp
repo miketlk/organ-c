@@ -51,6 +51,7 @@ typedef struct
     int loopStart = 0;
     int loopEnd = 0;
     int channel = 0;
+    int virtualChamber = 1;
     double pitchMult = 1.0;
     double volMult = 1.0;
     std::string enclosure = "";
@@ -63,6 +64,7 @@ typedef struct
     double fadeoutPos = 0;
     int fadein = 0;
     double fadeinPos = 0;
+    double panAngle = 45.0;
 } sample;
 
 typedef struct
@@ -383,7 +385,15 @@ void audioThreadFunc(int index)
                                 val *= (((enclosurevol - it.previousEnclosureVol) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureVol;
                             }
                             val = val * fadeoutvol * fadeinvol;
-                            workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
+                            if (it.virtualChamber == 1)
+                            {
+                                workingbuffer[(NUM_CHANNELS * i) + it.channel] += val * sin(it.panAngle);
+                                workingbuffer[(NUM_CHANNELS * i) + it.channel + 1] += val * cos(it.panAngle);
+                            }
+                            else
+                            {
+                                workingbuffer[(NUM_CHANNELS * i) + it.channel] += val;
+                            }
                         }
                         it.previousEnclosureVol = enclosurevol;
                         it.previousEnclosureHighpass = enclosurehighpass;
