@@ -209,10 +209,26 @@ typedef struct
     };
 } tremulant;
 
+typedef struct
+{
+    int channel = 0;
+    double pitchMult = 1.0;
+    double volMult = 1.0;
+    std::string enclosure = "";
+    std::string windchest = "";
+    std::string tremulant = "";
+} pipe;
+
+typedef struct
+{
+    std::unordered_map<int, pipe> pipes;
+} rank;
+
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
 std::unordered_map<std::string, windchest> windchests;
 std::unordered_map<std::string, tremulant> tremulants;
+std::unordered_map<std::string, rank> ranks;
 
 void signalHandler(int signum)
 {

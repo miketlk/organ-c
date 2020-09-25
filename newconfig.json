@@ -1,12 +1,4 @@
 {
-    "ranks": [
-        {
-            "name": "gt-principal-8",
-            "expression": "",
-            "tremulant": "",
-            "chest": ""
-        }
-    ],
     "enclosures": [
         {
             "name": "swell",
@@ -28,6 +20,17 @@
                     "min": 0,
                     "value": 0
                 }
+            ]
+        }
+    ],
+    "ranks": [
+        {
+            "name": "gt-principal-8",
+            "expression": "",
+            "tremulant": "",
+            "chest": "",
+            "pipes": [
+                
             ]
         }
     ]
