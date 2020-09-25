@@ -387,8 +387,8 @@ void audioThreadFunc(int index)
                             val = val * fadeoutvol * fadeinvol;
                             if (it.virtualChamber == 1)
                             {
-                                workingbuffer[(NUM_CHANNELS * i) + it.channel] += val * sin(it.panAngle);
-                                workingbuffer[(NUM_CHANNELS * i) + it.channel + 1] += val * cos(it.panAngle);
+                                workingbuffer[(NUM_CHANNELS * i) + it.channel] += val * cos(it.panAngle);
+                                workingbuffer[(NUM_CHANNELS * i) + it.channel + 1] += val * sin(it.panAngle);
                             }
                             else
                             {
