@@ -18,6 +18,7 @@
 #include <atomic>
 #include <chrono>
 #include <math.h>
+#include <algorithm>
 
 using json = nlohmann::json;
 
@@ -213,21 +214,45 @@ typedef struct
 
 typedef struct
 {
-    int channelOne = 0;
-    int channelTwo = -1;
-    double pitchMult = 1.0;
-    double volMult = 1.0;
-    std::string enclosure = "";
-    std::string windchest = "";
-    std::string tremulant = "";
+    int start;
+    int end;
+} loop;
+
+typedef struct
+{
+    sample *sampleData;
+    std::vector<loop> loops;
+} sampleItem;
+
+typedef struct
+{
+    std::unordered_map<int, std::unordered_map<double, sampleItem>> attacks;
+    std::unordered_map<int, std::unordered_map<double, sampleItem>> releases;
+    void play(int velocity)
+    {
+    }
+    void stop(int velocity)
+    {
+    }
 } pipe;
 
 typedef struct
 {
-    std::string enclosure = "";
-    std::string windchest = "";
-    std::string tremulant = "";
     std::unordered_map<int, pipe> pipes;
+    void play(int note, int velocity)
+    {
+        if (pipes.find(note) != pipes.end())
+        {
+            pipes[note].play(velocity);
+        }
+    }
+    void stop(int note, int velocity)
+    {
+        if (pipes.find(note) != pipes.end())
+        {
+            pipes[note].stop(velocity);
+        }
+    }
 } rank;
 
 std::vector<sample> samples;
@@ -507,6 +532,7 @@ int main(void)
     std::ifstream ii("config.json");
     json config;
     ii >> config;
+    ii.close();
 
     tremulants["main"] = tremulant();
 
@@ -543,6 +569,24 @@ int main(void)
     SF_INSTRUMENT inst;
     int nframes;
     std::string filename;
+
+    for (auto &rElement : config["ranks"])
+    {
+        ranks[rElement["name"]] = rank();
+        std::ifstream rc(rElement["folder"].get<std::string>() + "/config.json");
+        json rankConfig;
+        rc >> rankConfig;
+        rc.close();
+        for (auto &pElement : rankConfig)
+        {
+            pipe newPipe;
+            for (auto &aElement : rElement["attacks"])
+            {
+                
+            }
+            ranks[rElement["name"]].pipes[pElement["number"]] = newPipe;
+        }
+    }
 
     int selectedThread = 0;
     for (long unsigned int i = 0; i < config["samples"].size(); i++)

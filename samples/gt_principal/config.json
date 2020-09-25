@@ -1,5 +1,11 @@
-{
-    "pipes": {
-        
+[
+    {
+        "number": 36,
+        "attacks": [
+            {
+                "velocity": 64,
+                "rates": []
+            }
+        ]
     }
-}
+]

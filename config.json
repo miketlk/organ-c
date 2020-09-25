@@ -1,15 +1,4 @@
 {
-    "samples": [
-        {
-            "file": "02.wav"
-        },
-        {
-            "file": "03.wav"
-        },
-        {
-            "file": "04.wav"
-        }
-    ],
     "enclosures": [
         {
             "name": "swell",
@@ -32,6 +21,21 @@
                     "value": 0
                 }
             ]
+        }
+    ],
+    "ranks": [
+        {
+            "name": "gt-principal-8",
+            "enclosure": "",
+            "tremulant": "",
+            "windchest": "",
+            "folder": "samples/gt_principal",
+            "trebleChannelOne": 0,
+            "trebleChannelTwo": -1,
+            "bassChannelOne": 0,
+            "bassChannelTwo": -1,
+            "trebleBassSplit": 45,
+            "layoutMode": 0
         }
     ]
 }
