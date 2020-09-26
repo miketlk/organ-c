@@ -255,11 +255,68 @@ typedef struct
     }
 } rank;
 
+typedef struct
+{
+    std::string name;
+    int midichannel;
+    int notes[128] = {0};
+    void play(int note, int velocity)
+    {
+        for (auto &it : stops)
+        {
+            if (it.second.keyboard == name)
+            {
+                it.second.play(note, velocity);
+            }
+        }
+    };
+    void stop(int note, int velocity)
+    {
+        for (auto &it : stops)
+        {
+            if (it.second.keyboard == name)
+            {
+                it.second.stop(note, velocity);
+            }
+        }
+    };
+} keyboard;
+
+typedef struct
+{
+    int midichannel;
+    int midinote;
+    std::string keyboard;
+    int active = 0;
+    void play(int note, int velocity)
+    {
+        if (active == 1)
+        {
+        }
+    };
+    void stop(int note, int velocity)
+    {
+        if (active == 1)
+        {
+        }
+    };
+    void on()
+    {
+        active = 1;
+    };
+    void off()
+    {
+        active = 0;
+    };
+} stop;
+
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
 std::unordered_map<std::string, windchest> windchests;
 std::unordered_map<std::string, tremulant> tremulants;
 std::unordered_map<std::string, rank> ranks;
+std::unordered_map<std::string, stop> stops;
+std::unordered_map<std::string, keyboard> keyboards;
 
 void signalHandler(int signum)
 {
@@ -495,7 +552,6 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
         messagevalue = message->at(2);
         //std::cout << "Value: " << messagevalue << std::endl;
     }
-
     if (messagetype == 11)
     {
         // Handle expression
@@ -516,6 +572,40 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
             if (it.second.depthMidichannel == messagechannel && it.second.depthMidinote == midinote)
             {
                 it.second.chooseDepthValue(messagevalue);
+            }
+        }
+    }
+    else if (messagetype == 8 || (messagetype == 9 && messagevalue == 0))
+    {
+        for (auto &it : keyboards)
+        {
+            if (it.second.midichannel == messagechannel)
+            {
+                it.second.stop(midinote, messagevalue);
+            }
+        }
+        for (auto &it : stops)
+        {
+            if (it.second.midichannel == messagechannel && it.second.midinote == midinote)
+            {
+                it.second.off();
+            }
+        }
+    }
+    else if (messagetype == 9)
+    {
+        for (auto &it : keyboards)
+        {
+            if (it.second.midichannel == messagechannel)
+            {
+                it.second.play(midinote, messagevalue);
+            }
+        }
+        for (auto &it : stops)
+        {
+            if (it.second.midichannel == messagechannel && it.second.midinote == midinote)
+            {
+                it.second.on();
             }
         }
     }
@@ -582,7 +672,6 @@ int main(void)
             pipe newPipe;
             for (auto &aElement : rElement["attacks"])
             {
-                
             }
             ranks[rElement["name"]].pipes[pElement["number"]] = newPipe;
         }

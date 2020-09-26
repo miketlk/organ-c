@@ -1,4 +1,17 @@
 {
+    "keyboards": [
+        {
+            "name": "great",
+            "midichannel": 1
+        }
+    ],
+    "stops": [
+        {
+            "keyboard": "great",
+            "midichannel": 7,
+            "midinote": 10
+        }
+    ],
     "enclosures": [
         {
             "name": "swell",
