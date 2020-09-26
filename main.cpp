@@ -262,6 +262,7 @@ typedef struct
     int notes[128] = {0};
     void play(int note, int velocity)
     {
+        notes[note] = 1;
         for (auto &it : stops)
         {
             if (it.second.keyboard == name)
@@ -272,6 +273,7 @@ typedef struct
     };
     void stop(int note, int velocity)
     {
+        notes[note] = 0;
         for (auto &it : stops)
         {
             if (it.second.keyboard == name)
