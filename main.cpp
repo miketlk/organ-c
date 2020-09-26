@@ -178,7 +178,6 @@ typedef struct
         {
             pitchMult = 0.0;
         }
-        //std::cout << pitchMult << std::endl;
     };
     void chooseSpeedValue(int input)
     {
