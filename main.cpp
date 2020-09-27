@@ -356,11 +356,40 @@ typedef struct
     };
     void on()
     {
-        active = 1;
+        if (active == 0)
+        {
+            active = 1;
+            for (auto &it : rnks)
+            {
+                for (int ki = 0; ki < 128; ki++)
+                {
+                    if (keyboards[keyboard].notes[ki] == 1)
+                    {
+                        if ((ki + it.offset) >= it.lowNote && (ki + it.offset) <= it.highNote)
+                        {
+                            ranks[it.name].play(ki + it.offset, 64, name);
+                        }
+                    }
+                }
+            }
+        }
     };
     void off()
     {
-        active = 0;
+        if (active == 1)
+        {
+            active = 0;
+            for (auto &it : rnks)
+            {
+                for (int ki = 0; ki < 128; ki++)
+                {
+                    if ((ki + it.offset) >= it.lowNote && (ki + it.offset) <= it.highNote)
+                    {
+                        ranks[it.name].stop(ki + it.offset, 0, name);
+                    }
+                }
+            }
+        }
     };
 } stop;
 
