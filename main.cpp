@@ -150,7 +150,7 @@ typedef struct
 
 typedef struct
 {
-    int active = 1;
+    int active = 0;
     double pitchMult = 0.0;
     int speedMidichannel;
     int speedMidinote;
@@ -163,6 +163,10 @@ typedef struct
     double depth = -0.015;
     std::vector<shoeStage> speedStages;
     std::vector<shoeStage> depthStages;
+    sampleItem onNoise;
+    sampleItem offNoise;
+    int hasOnNoise = 0;
+    int hasOffNoise = 0;
     void recalculate()
     {
         if (active == 1)
@@ -209,6 +213,36 @@ typedef struct
             depthSelectedValue = input;
         }
     };
+    void on()
+    {
+        if (active == 0)
+        {
+            active = 1;
+            if (hasOnNoise == 1)
+            {
+                onNoise.play(0);
+                if (hasOffNoise == 1)
+                {
+                    offNoise.stop(1);
+                }
+            }
+        }
+    };
+    void off()
+    {
+        if (active == 1)
+        {
+            active = 0;
+            if (hasOffNoise == 1)
+            {
+                offNoise.play(0);
+                if (hasOnNoise == 1)
+                {
+                    onNoise.stop(1);
+                }
+            }
+        }
+    };
 } tremulant;
 
 typedef struct
@@ -221,6 +255,43 @@ typedef struct
 {
     sample *sampleData;
     std::vector<loop> loops;
+    void play(int fadein)
+    {
+        if (sampleData->playing != 1)
+        {
+            sampleData->pos = 0;
+            sampleData->fadeout = 0;
+            sampleData->fadeinPos = 0;
+            sampleData->fadeoutPos = 0;
+            sampleData->fadein = 0;
+            if (fadein == 1)
+            {
+                sampleData->fadein = 1;
+            }
+            if (loops.size() > 0)
+            {
+                int Random = std::rand() % loops.size();
+                sampleData->loopStart = loops[Random].start;
+                sampleData->loopEnd = loops[Random].end;
+            }
+            sampleData->playing = 1;
+        }
+    };
+    void stop(int fadeout)
+    {
+        if (sampleData->playing == 1)
+        {
+            if (fadeout == 1)
+            {
+                sampleData->fadeoutPos = 0;
+                sampleData->fadeout = 1;
+            }
+            else
+            {
+                sampleData->playing = 0;
+            }
+        }
+    };
 } sampleItem;
 
 typedef struct
@@ -328,6 +399,10 @@ typedef struct
     int active = 0;
     std::vector<rankMapping> rnks;
     std::string name;
+    sampleItem onNoise;
+    sampleItem offNoise;
+    int hasOnNoise = 0;
+    int hasOffNoise = 0;
     void play(int note, int velocity)
     {
         if (active == 1)
@@ -359,6 +434,7 @@ typedef struct
         if (active == 0)
         {
             active = 1;
+            onNoise.sampleData->playing = 1;
             for (auto &it : rnks)
             {
                 for (int ki = 0; ki < 128; ki++)
@@ -379,6 +455,7 @@ typedef struct
         if (active == 1)
         {
             active = 0;
+            offNoise.sampleData->playing = 1;
             for (auto &it : rnks)
             {
                 for (int ki = 0; ki < 128; ki++)
