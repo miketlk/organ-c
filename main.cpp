@@ -407,10 +407,10 @@ typedef struct
     int active = 0;
     std::vector<rankMapping> rnks;
     std::string name;
-    sampleItem onNoise;
-    sampleItem offNoise;
-    int hasOnNoise = 0;
-    int hasOffNoise = 0;
+    std::vector<sampleItem> onNoises;
+    std::vector<sampleItem> offNoises;
+    sampleItem *onNoise = NULL;
+    sampleItem *offNoise = NULL;
     void play(int note, int velocity)
     {
         if (active == 1)
@@ -439,10 +439,21 @@ typedef struct
     };
     void on()
     {
+        int Random;
         if (active == 0)
         {
             active = 1;
-            onNoise.sampleData->playing = 1;
+            if (onNoises.size() > 0)
+            {
+                Random = std::rand() % onNoises.size();
+                onNoises[Random].play(0);
+                onNoise = &onNoises[Random];
+                if (offNoise)
+                {
+                    offNoise->stop(1);
+                    offNoise = NULL;
+                }
+            }
             for (auto &it : rnks)
             {
                 for (int ki = 0; ki < 128; ki++)
@@ -460,10 +471,21 @@ typedef struct
     };
     void off()
     {
+        int Random;
         if (active == 1)
         {
             active = 0;
-            offNoise.sampleData->playing = 1;
+            if (offNoises.size() > 0)
+            {
+                Random = std::rand() % offNoises.size();
+                offNoises[Random].play(1);
+                offNoise = &offNoises[Random];
+                if (onNoise)
+                {
+                    onNoise->stop(1);
+                    onNoise = NULL;
+                }
+            }
             for (auto &it : rnks)
             {
                 for (int ki = 0; ki < 128; ki++)
