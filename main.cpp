@@ -736,18 +736,18 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
     int messagevalue;
     unsigned int nBytes = message->size();
     messagetype = message->at(0) >> 4;
-    //std::cout << "Type: " << messagetype << std::endl;
+    std::cout << "Type: " << messagetype << std::endl;
     messagechannel = (message->at(0) & 15) + 1;
-    //std::cout << "Channel: " << messagechannel << std::endl;
+    std::cout << "Channel: " << messagechannel << std::endl;
     if (nBytes > 1)
     {
         midinote = message->at(1);
-        //std::cout << "Note: " << midinote << std::endl;
+        std::cout << "Note: " << midinote << std::endl;
     }
     if (nBytes > 2)
     {
         messagevalue = message->at(2);
-        //std::cout << "Value: " << messagevalue << std::endl;
+        std::cout << "Value: " << messagevalue << std::endl;
     }
     if (messagetype == 11)
     {
@@ -1056,7 +1056,7 @@ int main(void)
         std::cout << ii << " - " << deviceInfo->name << std::endl;
     }
 
-    outputParameters.device = 6;
+    outputParameters.device = 9;
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
