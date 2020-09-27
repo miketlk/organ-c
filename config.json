@@ -33,7 +33,7 @@
             ],
             "offNoises": [
                 {
-                    "file": "stop-on.wav",
+                    "file": "stop-off.wav",
                     "loops": 0,
                     "channelOne": 0,
                     "channelTwo": -1,

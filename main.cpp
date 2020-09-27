@@ -880,8 +880,63 @@ int main(void)
 
             if (ri["loops"] == 1)
             {
+                if (inst.loop_count > 0)
+                {
+                    for (int ll = 0; ll < inst.loop_count; ll++)
+                    {
+                        loop newLoop;
+                        newLoop.start = inst.loops[ll].start;
+                        newLoop.end = inst.loops[ll].end;
+                        newOnNoise.loops.push_back(newLoop);
+                    }
+                }
             }
             stops[it["name"]].onNoises.push_back(newOnNoise);
+        }
+        for (auto &ri : it["offNoises"])
+        {
+            sampleItem newOffNoise;
+            sample newSample;
+            newSample.loops = ri["loops"];
+            newSample.channelOne = ri["channelOne"];
+            newSample.channelTwo = ri["channelTwo"];
+            newSample.panAngle = ri["panAngle"];
+            newSample.pitchMult = ri["pitchMult"];
+            newSample.volMult = ri["volMult"];
+            newSample.enclosure = ri["enclosure"];
+
+            filename = ri["file"];
+            wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
+            sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
+
+            nframes = inFileInfo.frames * inFileInfo.channels;
+            double data[nframes];
+
+            sf_read_double(wf, data, nframes);
+
+            sf_close(wf);
+
+            std::vector<double> newbuffer(data, data + nframes);
+            newSample.data = newbuffer;
+            newSample.loopEnd = nframes;
+
+            samples.push_back(newSample);
+            newOffNoise.sampleData = &samples.back();
+
+            if (ri["loops"] == 1)
+            {
+                if (inst.loop_count > 0)
+                {
+                    for (int ll = 0; ll < inst.loop_count; ll++)
+                    {
+                        loop newLoop;
+                        newLoop.start = inst.loops[ll].start;
+                        newLoop.end = inst.loops[ll].end;
+                        newOffNoise.loops.push_back(newLoop);
+                    }
+                }
+            }
+            stops[it["name"]].offNoises.push_back(newOffNoise);
         }
     }
 
