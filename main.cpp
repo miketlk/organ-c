@@ -70,6 +70,55 @@ typedef struct
 
 typedef struct
 {
+    int start;
+    int end;
+} loop;
+
+typedef struct
+{
+    sample *sampleData;
+    std::vector<loop> loops;
+    void play(int fadein)
+    {
+        if (sampleData->playing != 1)
+        {
+            sampleData->pos = 0;
+            sampleData->fadeout = 0;
+            sampleData->fadeinPos = 0;
+            sampleData->fadeoutPos = 0;
+            sampleData->fadein = 0;
+            if (fadein == 1)
+            {
+                sampleData->fadein = 1;
+            }
+            if (loops.size() > 0)
+            {
+                int Random = std::rand() % loops.size();
+                sampleData->loopStart = loops[Random].start;
+                sampleData->loopEnd = loops[Random].end;
+            }
+            sampleData->playing = 1;
+        }
+    };
+    void stop(int fadeout)
+    {
+        if (sampleData->playing == 1)
+        {
+            if (fadeout == 1)
+            {
+                sampleData->fadeoutPos = 0;
+                sampleData->fadeout = 1;
+            }
+            else
+            {
+                sampleData->playing = 0;
+            }
+        }
+    };
+} sampleItem;
+
+typedef struct
+{
     int min;
     int max;
     int value;
@@ -147,6 +196,8 @@ typedef struct
         pitchMult = 0.0;
     }
 } windchest;
+
+std::unordered_map<std::string, windchest> windchests;
 
 typedef struct
 {
@@ -253,54 +304,7 @@ typedef struct
     };
 } tremulant;
 
-typedef struct
-{
-    int start;
-    int end;
-} loop;
-
-typedef struct
-{
-    sample *sampleData;
-    std::vector<loop> loops;
-    void play(int fadein)
-    {
-        if (sampleData->playing != 1)
-        {
-            sampleData->pos = 0;
-            sampleData->fadeout = 0;
-            sampleData->fadeinPos = 0;
-            sampleData->fadeoutPos = 0;
-            sampleData->fadein = 0;
-            if (fadein == 1)
-            {
-                sampleData->fadein = 1;
-            }
-            if (loops.size() > 0)
-            {
-                int Random = std::rand() % loops.size();
-                sampleData->loopStart = loops[Random].start;
-                sampleData->loopEnd = loops[Random].end;
-            }
-            sampleData->playing = 1;
-        }
-    };
-    void stop(int fadeout)
-    {
-        if (sampleData->playing == 1)
-        {
-            if (fadeout == 1)
-            {
-                sampleData->fadeoutPos = 0;
-                sampleData->fadeout = 1;
-            }
-            else
-            {
-                sampleData->playing = 0;
-            }
-        }
-    };
-} sampleItem;
+std::unordered_map<std::string, tremulant> tremulants;
 
 typedef struct
 {
@@ -362,34 +366,7 @@ typedef struct
     }
 } rank;
 
-typedef struct
-{
-    std::string name;
-    int midichannel;
-    int notes[128] = {0};
-    void play(int note, int velocity)
-    {
-        notes[note] = 1;
-        for (auto &it : stops)
-        {
-            if (it.second.keyboard == name)
-            {
-                it.second.play(note, velocity);
-            }
-        }
-    };
-    void stop(int note, int velocity)
-    {
-        notes[note] = 0;
-        for (auto &it : stops)
-        {
-            if (it.second.keyboard == name)
-            {
-                it.second.stop(note, velocity);
-            }
-        }
-    };
-} keyboard;
+std::unordered_map<std::string, rank> ranks;
 
 typedef struct
 {
@@ -437,38 +414,7 @@ typedef struct
             }
         }
     };
-    void on()
-    {
-        int Random;
-        if (active == 0)
-        {
-            active = 1;
-            if (onNoises.size() > 0)
-            {
-                Random = std::rand() % onNoises.size();
-                onNoises[Random].play(0);
-                onNoise = &onNoises[Random];
-                if (offNoise)
-                {
-                    offNoise->stop(1);
-                    offNoise = NULL;
-                }
-            }
-            for (auto &it : rnks)
-            {
-                for (int ki = 0; ki < 128; ki++)
-                {
-                    if (keyboards[keyboard].notes[ki] == 1)
-                    {
-                        if ((ki + it.offset) >= it.lowNote && (ki + it.offset) <= it.highNote)
-                        {
-                            ranks[it.name].play(ki + it.offset, 64, name);
-                        }
-                    }
-                }
-            }
-        }
-    };
+    void on();
     void off()
     {
         int Random;
@@ -500,13 +446,74 @@ typedef struct
     };
 } stop;
 
+std::unordered_map<std::string, stop> stops;
+
+typedef struct
+{
+    std::string name;
+    int midichannel;
+    int notes[128] = {0};
+    void play(int note, int velocity)
+    {
+        notes[note] = 1;
+        for (auto &it : stops)
+        {
+            if (it.second.keyboard == name)
+            {
+                it.second.play(note, velocity);
+            }
+        }
+    };
+    void stop(int note, int velocity)
+    {
+        notes[note] = 0;
+        for (auto &it : stops)
+        {
+            if (it.second.keyboard == name)
+            {
+                it.second.stop(note, velocity);
+            }
+        }
+    };
+} keyboard;
+
+std::unordered_map<std::string, keyboard> keyboards;
+
+void stop::on()
+{
+    int Random;
+    if (active == 0)
+    {
+        active = 1;
+        if (onNoises.size() > 0)
+        {
+            Random = std::rand() % onNoises.size();
+            onNoises[Random].play(0);
+            onNoise = &onNoises[Random];
+            if (offNoise)
+            {
+                offNoise->stop(1);
+                offNoise = NULL;
+            }
+        }
+        for (auto &it : rnks)
+        {
+            for (int ki = 0; ki < 128; ki++)
+            {
+                if (keyboards[keyboard].notes[ki] == 1)
+                {
+                    if ((ki + it.offset) >= it.lowNote && (ki + it.offset) <= it.highNote)
+                    {
+                        ranks[it.name].play(ki + it.offset, 64, name);
+                    }
+                }
+            }
+        }
+    }
+};
+
 std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
-std::unordered_map<std::string, windchest> windchests;
-std::unordered_map<std::string, tremulant> tremulants;
-std::unordered_map<std::string, rank> ranks;
-std::unordered_map<std::string, stop> stops;
-std::unordered_map<std::string, keyboard> keyboards;
 
 void signalHandler(int signum)
 {
@@ -965,7 +972,12 @@ int main(void)
         }
     }
 
-    for (auto &rElement : config["ranks"])
+    for (auto &it : enclosures)
+    {
+        it.second.recalculate();
+    }
+
+    /*for (auto &rElement : config["ranks"])
     {
         ranks[rElement["name"]] = rank();
         std::ifstream rc(rElement["folder"].get<std::string>() + "/config.json");
@@ -980,12 +992,7 @@ int main(void)
             }
             ranks[rElement["name"]].pipes[pElement["number"]] = newPipe;
         }
-    }
-
-    for (auto &it : enclosures)
-    {
-        it.second.recalculate();
-    }
+    }*/
 
     int selectedThread = 0;
     for (auto &it : samples)
