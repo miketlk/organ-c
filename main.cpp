@@ -940,32 +940,29 @@ int main(void)
         }
     }
 
-    for (long unsigned int i = 0; i < config["enclosures"].size(); i++)
+    for (auto &it : config["enclosures"])
     {
-        enclosures[config["enclosures"][i]["name"]] = enclosure();
-        enclosures.at(config["enclosures"][i]["name"]).midichannel = config["enclosures"][i]["midichannel"];
-        enclosures.at(config["enclosures"][i]["name"]).midinote = config["enclosures"][i]["midinote"];
-        enclosures.at(config["enclosures"][i]["name"]).enclosure = config["enclosures"][i]["enclosure"];
-        enclosures.at(config["enclosures"][i]["name"]).maxHighpass = config["enclosures"][i]["maxHighpass"];
-        enclosures.at(config["enclosures"][i]["name"]).minHighpass = config["enclosures"][i]["minHighpass"];
-        enclosures.at(config["enclosures"][i]["name"]).highpassLogFactor = config["enclosures"][i]["highpassLogFactor"];
-        enclosures.at(config["enclosures"][i]["name"]).maxLowpass = config["enclosures"][i]["maxLowpass"];
-        enclosures.at(config["enclosures"][i]["name"]).minLowpass = config["enclosures"][i]["minLowpass"];
-        enclosures.at(config["enclosures"][i]["name"]).lowpassLogFactor = config["enclosures"][i]["lowpassLogFactor"];
-        enclosures.at(config["enclosures"][i]["name"]).maxVolume = config["enclosures"][i]["maxVolume"];
-        enclosures.at(config["enclosures"][i]["name"]).minVolume = config["enclosures"][i]["minVolume"];
-        enclosures.at(config["enclosures"][i]["name"]).volumeLogFactor = config["enclosures"][i]["volumeLogFactor"];
-        for (long unsigned int ii = 0; ii < config["enclosures"][i]["stages"].size(); ii++)
+        enclosures[it["name"]] = enclosure();
+        enclosures[it["name"]].midichannel = it["midichannel"];
+        enclosures[it["name"]].midinote = it["midinote"];
+        enclosures[it["name"]].enclosure = it["enclosure"];
+        enclosures[it["name"]].maxHighpass = it["maxHighpass"];
+        enclosures[it["name"]].minHighpass = it["minHighpass"];
+        enclosures[it["name"]].highpassLogFactor = it["highpassLogFactor"];
+        enclosures[it["name"]].maxLowpass = it["maxLowpass"];
+        enclosures[it["name"]].minLowpass = it["minLowpass"];
+        enclosures[it["name"]].lowpassLogFactor = it["lowpassLogFactor"];
+        enclosures[it["name"]].maxVolume = it["maxVolume"];
+        enclosures[it["name"]].minVolume = it["minVolume"];
+        enclosures[it["name"]].volumeLogFactor = it["volumeLogFactor"];
+        for (auto &si : it["stages"])
         {
-            enclosures.at(config["enclosures"][i]["name"]).stages.push_back(shoeStage());
-            enclosures.at(config["enclosures"][i]["name"]).stages[ii].max = config["enclosures"][i]["stages"][ii]["max"];
-            enclosures.at(config["enclosures"][i]["name"]).stages[ii].min = config["enclosures"][i]["stages"][ii]["min"];
-            enclosures.at(config["enclosures"][i]["name"]).stages[ii].value = config["enclosures"][i]["stages"][ii]["value"];
+            shoeStage newStage;
+            newStage.max = si["max"];
+            newStage.min = si["min"];
+            newStage.value = si["value"];
+            enclosures[it["name"]].stages.push_back(newStage);
         }
-    }
-    for (auto &it : enclosures)
-    {
-        it.second.recalculate();
     }
 
     for (auto &rElement : config["ranks"])
@@ -985,32 +982,19 @@ int main(void)
         }
     }
 
+    for (auto &it : enclosures)
+    {
+        it.second.recalculate();
+    }
+
     int selectedThread = 0;
-    for (long unsigned int i = 0; i < config["samples"].size(); i++)
+    for (auto &it : samples)
     {
         if (selectedThread >= available_threads)
         {
             selectedThread = 0;
         }
-        samples.push_back(sample());
-
-        filename = config["samples"][i]["file"];
-
-        wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
-        sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
-
-        nframes = inFileInfo.frames * inFileInfo.channels;
-        double data[nframes];
-
-        sf_read_double(wf, data, nframes);
-
-        sf_close(wf);
-
-        std::vector<double> newbuffer(data, data + nframes);
-        samples[i].data = newbuffer;
-        samples[i].loopEnd = nframes;
-        samples[i].playing = 1;
-        samples[i].thread = selectedThread;
+        it.thread = selectedThread;
         selectedThread += 1;
     }
 
