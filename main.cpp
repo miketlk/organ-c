@@ -240,12 +240,12 @@ typedef struct
         if (playing == 0)
         {
             playing = 1;
-            // add attack
             if (playingRelease)
             {
                 playingRelease->sampleData->fadeout = 1;
                 playingRelease = NULL;
             }
+            // add attack
         }
     }
     void stop(int velocity, std::string stopName)
