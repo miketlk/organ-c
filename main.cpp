@@ -818,7 +818,30 @@ int main(void)
     ii >> config;
     ii.close();
 
-    tremulants["main"] = tremulant();
+    for (auto &it : config["keyboards"])
+    {
+        keyboards[it["name"]] = keyboard();
+        keyboards[it["name"]].name = it["name"];
+        keyboards[it["name"]].midichannel = it["midichannel"];
+    }
+
+    for (auto &it : config["stops"])
+    {
+        stops[it["name"]] = stop();
+        stops[it["name"]].name = it["name"];
+        stops[it["name"]].keyboard = it["keyboard"];
+        stops[it["name"]].midichannel = it["midichannel"];
+        stops[it["name"]].midinote = it["midinote"];
+        stops[it["name"]].active = it["active"];
+        for (auto &ri : it["ranks"]) {
+            rankMapping newMapping;
+            newMapping.name = ri["name"];
+            newMapping.lowNote = ri["lowNote"];
+            newMapping.highNote = ri["highNote"];
+            newMapping.offset = ri["noteOffset"];
+            stops[it["name"]].rnks.push_back(newMapping);
+        }
+    }
 
     for (long unsigned int i = 0; i < config["enclosures"].size(); i++)
     {

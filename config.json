@@ -9,7 +9,22 @@
         {
             "keyboard": "great",
             "midichannel": 7,
-            "midinote": 10
+            "midinote": 10,
+            "active": 0,
+            "ranks": [
+                {
+                    "name": "gt-principal-8",
+                    "lowNote": 36,
+                    "highNote": 96,
+                    "noteOffset": 0
+                }
+            ],
+            "onNoises": [
+
+            ],
+            "offNoises": [
+
+            ]
         }
     ],
     "enclosures": [
