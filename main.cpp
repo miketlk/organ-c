@@ -225,31 +225,60 @@ typedef struct
 
 typedef struct
 {
+    sampleItem *playingAttack = NULL;
+    sampleItem *playingRelease = NULL;
     std::unordered_map<int, std::unordered_map<double, sampleItem>> attacks;
     std::unordered_map<int, std::unordered_map<double, sampleItem>> releases;
-    void play(int velocity)
+    int playing = 0;
+    std::vector<std::string> playingFor;
+    void play(int velocity, std::string stopName)
     {
+        if (std::find(playingFor.begin(), playingFor.end(), stopName) == playingFor.end())
+        {
+            playingFor.push_back(stopName);
+        }
+        if (playing == 0)
+        {
+            playing = 1;
+            // add attack
+            if (playingRelease)
+            {
+                playingRelease->sampleData->fadeout = 1;
+                playingRelease = NULL;
+            }
+        }
     }
-    void stop(int velocity)
+    void stop(int velocity, std::string stopName)
     {
+        if (playing == 1)
+        {
+            playingFor.erase(std::remove(playingFor.begin(), playingFor.end(), stopName), playingFor.end());
+            if (playingFor.empty())
+            {
+                playing = 0;
+                playingAttack->sampleData->fadeout = 1;
+                playingAttack = NULL;
+                // add release
+            }
+        }
     }
 } pipe;
 
 typedef struct
 {
     std::unordered_map<int, pipe> pipes;
-    void play(int note, int velocity)
+    void play(int note, int velocity, std::string stopName)
     {
         if (pipes.find(note) != pipes.end())
         {
-            pipes[note].play(velocity);
+            pipes[note].play(velocity, stopName);
         }
     }
-    void stop(int note, int velocity)
+    void stop(int note, int velocity, std::string stopName)
     {
         if (pipes.find(note) != pipes.end())
         {
-            pipes[note].stop(velocity);
+            pipes[note].stop(velocity, stopName);
         }
     }
 } rank;
@@ -285,20 +314,44 @@ typedef struct
 
 typedef struct
 {
+    std::string name;
+    int lowNote;
+    int highNote;
+    int offset;
+} rankMapping;
+
+typedef struct
+{
     int midichannel;
     int midinote;
     std::string keyboard;
     int active = 0;
+    std::vector<rankMapping> rnks;
+    std::string name;
     void play(int note, int velocity)
     {
         if (active == 1)
         {
+            for (auto &it : rnks)
+            {
+                if ((note + it.offset) >= it.lowNote && (note + it.offset) <= it.highNote)
+                {
+                    ranks[it.name].play(note + it.offset, velocity, name);
+                }
+            }
         }
     };
     void stop(int note, int velocity)
     {
         if (active == 1)
         {
+            for (auto &it : rnks)
+            {
+                if ((note + it.offset) >= it.lowNote && (note + it.offset) <= it.highNote)
+                {
+                    ranks[it.name].stop(note + it.offset, velocity, name);
+                }
+            }
         }
     };
     void on()
@@ -578,6 +631,7 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
     }
     else if (messagetype == 8 || (messagetype == 9 && messagevalue == 0))
     {
+        // Note off
         for (auto &it : keyboards)
         {
             if (it.second.midichannel == messagechannel)
@@ -585,6 +639,7 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
                 it.second.stop(midinote, messagevalue);
             }
         }
+        // Stop off
         for (auto &it : stops)
         {
             if (it.second.midichannel == messagechannel && it.second.midinote == midinote)
@@ -595,6 +650,7 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
     }
     else if (messagetype == 9)
     {
+        // Note on
         for (auto &it : keyboards)
         {
             if (it.second.midichannel == messagechannel)
@@ -602,6 +658,7 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
                 it.second.play(midinote, messagevalue);
             }
         }
+        // Stop on
         for (auto &it : stops)
         {
             if (it.second.midichannel == messagechannel && it.second.midinote == midinote)
