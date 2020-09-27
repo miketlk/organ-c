@@ -426,11 +426,11 @@ typedef struct
                 Random = std::rand() % offNoises.size();
                 offNoises[Random].play(1);
                 offNoise = &offNoises[Random];
-                if (onNoise)
-                {
-                    onNoise->stop(1);
-                    onNoise = NULL;
-                }
+            }
+            if (onNoise)
+            {
+                onNoise->stop(1);
+                onNoise = NULL;
             }
             for (auto &it : rnks)
             {
@@ -490,11 +490,11 @@ void stop::on()
             Random = std::rand() % onNoises.size();
             onNoises[Random].play(0);
             onNoise = &onNoises[Random];
-            if (offNoise)
-            {
-                offNoise->stop(1);
-                offNoise = NULL;
-            }
+        }
+        if (offNoise)
+        {
+            offNoise->stop(1);
+            offNoise = NULL;
         }
         for (auto &it : rnks)
         {
