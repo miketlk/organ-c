@@ -325,7 +325,7 @@ typedef struct
             playing = 1;
             if (playingRelease)
             {
-                playingRelease->sampleData->fadeout = 1;
+                playingRelease->stop(1);
                 playingRelease = NULL;
             }
             // add attack
@@ -339,7 +339,7 @@ typedef struct
             if (playingFor.empty())
             {
                 playing = 0;
-                playingAttack->sampleData->fadeout = 1;
+                playingAttack->stop(1);
                 playingAttack = NULL;
                 // add release
             }
