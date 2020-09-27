@@ -47,8 +47,8 @@ typedef struct
     std::vector<double> data;
     int pos = 0;
     int playing = 0;
-    int thread = 1;
-    int loops = 1;
+    int thread = 0;
+    int loops = 0;
     int loopStart = 0;
     int loopEnd = 0;
     int channelOne = 0;
@@ -818,6 +818,12 @@ int main(void)
     ii >> config;
     ii.close();
 
+    SNDFILE *wf;
+    SF_INFO inFileInfo;
+    SF_INSTRUMENT inst;
+    int nframes;
+    std::string filename;
+
     for (auto &it : config["keyboards"])
     {
         keyboards[it["name"]] = keyboard();
@@ -833,13 +839,49 @@ int main(void)
         stops[it["name"]].midichannel = it["midichannel"];
         stops[it["name"]].midinote = it["midinote"];
         stops[it["name"]].active = it["active"];
-        for (auto &ri : it["ranks"]) {
+        for (auto &ri : it["ranks"])
+        {
             rankMapping newMapping;
             newMapping.name = ri["name"];
             newMapping.lowNote = ri["lowNote"];
             newMapping.highNote = ri["highNote"];
             newMapping.offset = ri["noteOffset"];
             stops[it["name"]].rnks.push_back(newMapping);
+        }
+        for (auto &ri : it["onNoises"])
+        {
+            sampleItem newOnNoise;
+            sample newSample;
+            newSample.loops = ri["loops"];
+            newSample.channelOne = ri["channelOne"];
+            newSample.channelTwo = ri["channelTwo"];
+            newSample.panAngle = ri["panAngle"];
+            newSample.pitchMult = ri["pitchMult"];
+            newSample.volMult = ri["volMult"];
+            newSample.enclosure = ri["enclosure"];
+
+            filename = ri["file"];
+            wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
+            sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
+
+            nframes = inFileInfo.frames * inFileInfo.channels;
+            double data[nframes];
+
+            sf_read_double(wf, data, nframes);
+
+            sf_close(wf);
+
+            std::vector<double> newbuffer(data, data + nframes);
+            newSample.data = newbuffer;
+            newSample.loopEnd = nframes;
+
+            samples.push_back(newSample);
+            newOnNoise.sampleData = &samples.back();
+
+            if (ri["loops"] == 1)
+            {
+            }
+            stops[it["name"]].onNoises.push_back(newOnNoise);
         }
     }
 
@@ -870,12 +912,6 @@ int main(void)
     {
         it.second.recalculate();
     }
-
-    SNDFILE *wf;
-    SF_INFO inFileInfo;
-    SF_INSTRUMENT inst;
-    int nframes;
-    std::string filename;
 
     for (auto &rElement : config["ranks"])
     {

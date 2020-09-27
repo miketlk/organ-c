@@ -20,10 +20,28 @@
                 }
             ],
             "onNoises": [
-
+                {
+                    "file": "stop-on.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                }
             ],
             "offNoises": [
-
+                {
+                    "file": "stop-on.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                }
             ]
         }
     ],
