@@ -163,10 +163,10 @@ typedef struct
     double depth = -0.015;
     std::vector<shoeStage> speedStages;
     std::vector<shoeStage> depthStages;
-    sampleItem onNoise;
-    sampleItem offNoise;
-    int hasOnNoise = 0;
-    int hasOffNoise = 0;
+    std::vector<sampleItem> onNoises;
+    std::vector<sampleItem> offNoises;
+    sampleItem *onNoise = NULL;
+    sampleItem *offNoise = NULL;
     void recalculate()
     {
         if (active == 1)
@@ -215,30 +215,38 @@ typedef struct
     };
     void on()
     {
+        int Random;
         if (active == 0)
         {
             active = 1;
-            if (hasOnNoise == 1)
+            if (onNoises.size() > 0)
             {
-                onNoise.play(0);
-                if (hasOffNoise == 1)
+                Random = std::rand() % onNoises.size();
+                onNoises[Random].play(0);
+                onNoise = &onNoises[Random];
+                if (offNoise)
                 {
-                    offNoise.stop(1);
+                    offNoise->stop(1);
+                    offNoise = NULL;
                 }
             }
         }
     };
     void off()
     {
+        int Random;
         if (active == 1)
         {
             active = 0;
-            if (hasOffNoise == 1)
+            if (offNoises.size() > 0)
             {
-                offNoise.play(0);
-                if (hasOnNoise == 1)
+                Random = std::rand() % offNoises.size();
+                offNoises[Random].play(1);
+                offNoise = &offNoises[Random];
+                if (onNoise)
                 {
-                    onNoise.stop(1);
+                    onNoise->stop(1);
+                    onNoise = NULL;
                 }
             }
         }
