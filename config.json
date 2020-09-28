@@ -20,6 +20,9 @@
                     "noteOffset": 0
                 }
             ],
+            "tremulants": [
+                "main"
+            ],
             "onNoises": [
                 {
                     "file": "02.wav",
@@ -69,6 +72,12 @@
                 }
             ]
         }
+    ],
+    "windchests": [
+
+    ],
+    "tremulants": [
+
     ],
     "ranks": [
         {

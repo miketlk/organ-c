@@ -221,6 +221,7 @@ typedef struct
     std::vector<sampleItem> offNoises;
     sampleItem *onNoise = NULL;
     sampleItem *offNoise = NULL;
+    std::vector<std::string> onFor;
     void recalculate()
     {
         if (active == 1)
@@ -267,9 +268,13 @@ typedef struct
             depthSelectedValue = input;
         }
     };
-    void on()
+    void on(std::string stopName)
     {
         int Random;
+        if (std::find(onFor.begin(), onFor.end(), stopName) == onFor.end())
+        {
+            onFor.push_back(stopName);
+        }
         if (active == 0)
         {
             active = 1;
@@ -286,21 +291,25 @@ typedef struct
             }
         }
     };
-    void off()
+    void off(std::string stopName)
     {
         int Random;
         if (active == 1)
         {
-            active = 0;
-            if (offNoises.size() > 0)
+            onFor.erase(std::remove(onFor.begin(), onFor.end(), stopName), onFor.end());
+            if (onFor.empty())
             {
-                Random = std::rand() % offNoises.size();
-                offNoises[Random].play(1);
-                offNoise = &offNoises[Random];
-                if (onNoise)
+                active = 0;
+                if (offNoises.size() > 0)
                 {
-                    onNoise->stop(1);
-                    onNoise = NULL;
+                    Random = std::rand() % offNoises.size();
+                    offNoises[Random].play(1);
+                    offNoise = &offNoises[Random];
+                    if (onNoise)
+                    {
+                        onNoise->stop(1);
+                        onNoise = NULL;
+                    }
                 }
             }
         }
@@ -389,6 +398,7 @@ typedef struct
     std::string name;
     std::vector<sampleItem> onNoises;
     std::vector<sampleItem> offNoises;
+    std::vector<std::string> trems;
     sampleItem *onNoise = NULL;
     sampleItem *offNoise = NULL;
     void play(int note, int velocity)
@@ -402,6 +412,10 @@ typedef struct
                     ranks[it.name].play(note + it.offset, velocity, name);
                 }
             }
+            for (auto &it : trems)
+            {
+                tremulants[it].on(name);
+            }
         }
     };
     void stop(int note, int velocity)
@@ -414,6 +428,10 @@ typedef struct
                 {
                     ranks[it.name].stop(note + it.offset, velocity, name);
                 }
+            }
+            for (auto &it : trems)
+            {
+                tremulants[it].off(name);
             }
         }
     };
@@ -595,7 +613,6 @@ void audioThreadFunc(int index)
                 {
                     if (it.thread == index && it.playing == 1)
                     {
-                        //std::cout << it.filename << std::endl;
                         pitch = it.pitchMult;
                         if (it.windchest != "")
                         {
@@ -861,6 +878,14 @@ int main(void)
             stops[it["name"]].rnks.push_back(newMapping);
         }
 
+        for (auto &ri : it["tremulants"])
+        {
+            if (std::find(stops[it["name"]].trems.begin(), stops[it["name"]].trems.end(), ri) == stops[it["name"]].trems.end())
+            {
+                stops[it["name"]].trems.push_back(ri);
+            }
+        }
+
         for (auto &ri : it["onNoises"])
         {
             sampleItem newOnNoise;
@@ -985,6 +1010,14 @@ int main(void)
     for (auto &it : enclosures)
     {
         it.second.recalculate();
+    }
+
+    for (auto &it : stops)
+    {
+        if (it.second.active == 1)
+        {
+            it.second.on();
+        }
     }
 
     /*for (auto &rElement : config["ranks"])
