@@ -69,6 +69,8 @@ typedef struct
     std::string filename = "";
 } sample;
 
+std::vector<sample> samples;
+
 typedef struct
 {
     int start;
@@ -77,42 +79,42 @@ typedef struct
 
 typedef struct
 {
-    sample *sampleData;
+    int selectedSample;
     std::vector<loop> loops;
     void play(int fadein)
     {
-        if (sampleData->playing != 1)
+        if (samples[selectedSample].playing != 1)
         {
-            sampleData->pos = 0;
-            sampleData->fadeout = 0;
-            sampleData->fadeinPos = 0;
-            sampleData->fadeoutPos = 0;
-            sampleData->fadein = 0;
+            samples[selectedSample].pos = 0;
+            samples[selectedSample].fadeout = 0;
+            samples[selectedSample].fadeinPos = 0;
+            samples[selectedSample].fadeoutPos = 0;
+            samples[selectedSample].fadein = 0;
             if (fadein == 1)
             {
-                sampleData->fadein = 1;
+                samples[selectedSample].fadein = 1;
             }
             if (loops.size() > 0)
             {
                 int Random = std::rand() % loops.size();
-                sampleData->loopStart = loops[Random].start;
-                sampleData->loopEnd = loops[Random].end;
+                samples[selectedSample].loopStart = loops[Random].start;
+                samples[selectedSample].loopEnd = loops[Random].end;
             }
-            sampleData->playing = 1;
+            samples[selectedSample].playing = 1;
         }
     };
     void stop(int fadeout)
     {
-        if (sampleData->playing == 1)
+        if (samples[selectedSample].playing == 1)
         {
             if (fadeout == 1)
             {
-                sampleData->fadeoutPos = 0;
-                sampleData->fadeout = 1;
+                samples[selectedSample].fadeoutPos = 0;
+                samples[selectedSample].fadeout = 1;
             }
             else
             {
-                sampleData->playing = 0;
+                samples[selectedSample].playing = 0;
             }
         }
     };
@@ -513,7 +515,6 @@ void stop::on()
     }
 };
 
-std::vector<sample> samples;
 std::vector<threadItem> audioThreads;
 
 void signalHandler(int signum)
@@ -820,7 +821,6 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
     }
 }
 
-int main(void);
 int main(void)
 {
     signal(2, signalHandler); // SIGINT
@@ -894,7 +894,7 @@ int main(void)
             newSample.loopEnd = nframes;
 
             samples.push_back(newSample);
-            newOnNoise.sampleData = &samples.back();
+            newOnNoise.selectedSample = samples.size() - 1;
 
             if (ri["loops"] == 1)
             {
@@ -941,7 +941,7 @@ int main(void)
             newSample.loopEnd = nframes;
 
             samples.push_back(newSample);
-            newOffNoise.sampleData = &samples.back();
+            newOffNoise.selectedSample = samples.size() - 1;
 
             if (ri["loops"] == 1)
             {
