@@ -114,17 +114,16 @@
                     "enclosure": ""
                 }
             ],
-            "offNoises": [
-            ]
+            "offNoises": []
         }
     ],
     "ranks": [
         {
             "name": "gt-principal-8",
+            "folder": "samples/gt_principal",
             "enclosure": "",
             "tremulant": "",
             "windchest": "",
-            "folder": "samples/gt_principal",
             "trebleChannelOne": 0,
             "trebleChannelTwo": -1,
             "bassChannelOne": 0,

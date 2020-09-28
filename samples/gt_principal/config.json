@@ -1,10 +1,17 @@
 [
     {
         "number": 36,
+        "enclosure": "",
+        "tremulant": "",
+        "windchest": "",
         "attacks": [
             {
                 "velocity": 64,
-                "rates": []
+                "time": 0.0,
+                "file": "01.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
             }
         ]
     }

@@ -19,6 +19,7 @@
 #include <chrono>
 #include <math.h>
 #include <algorithm>
+#include <chrono>
 
 using json = nlohmann::json;
 
@@ -323,12 +324,16 @@ std::unordered_map<std::string, tremulant> tremulants;
 
 typedef struct
 {
+    std::string windchest = "";
+    double windWeight = 0.0;
     sampleItem *playingAttack = NULL;
     sampleItem *playingRelease = NULL;
-    std::unordered_map<int, std::unordered_map<double, sampleItem>> attacks;
-    std::unordered_map<int, std::unordered_map<double, sampleItem>> releases;
+    std::unordered_map<int, std::unordered_map<double, std::vector<sampleItem>>> attacks;
+    std::unordered_map<int, std::unordered_map<double, std::vector<sampleItem>>> releases;
     int playing = 0;
     std::vector<std::string> playingFor;
+    std::chrono::system_clock::time_point lastPlayed = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point lastStopped = std::chrono::system_clock::now();
     void play(int velocity, std::string stopName)
     {
         if (std::find(playingFor.begin(), playingFor.end(), stopName) == playingFor.end())
@@ -337,6 +342,7 @@ typedef struct
         }
         if (playing == 0)
         {
+            lastPlayed = std::chrono::system_clock::now();
             playing = 1;
             if (playingRelease)
             {
@@ -350,6 +356,7 @@ typedef struct
     {
         if (playing == 1)
         {
+            lastStopped = std::chrono::system_clock::now();
             playingFor.erase(std::remove(playingFor.begin(), playingFor.end(), stopName), playingFor.end());
             if (playingFor.empty())
             {
@@ -1151,6 +1158,134 @@ int main(void)
     {
         ranks[it["name"]] = rank();
         ranks[it["name"]].name = it["name"];
+        std::ifstream rc(it["folder"].get<std::string>() + "/config.json");
+        json rankConfig;
+        rc >> rankConfig;
+        rc.close();
+
+        std::string enclosureItem = "";
+        std::string tremulantItem = "";
+        std::string windchestItem = "";
+        for (auto &ipe : rankConfig)
+        {
+            pipe newPipe;
+            if (ipe["windchest"] != "")
+            {
+                windchestItem = ipe["windchest"];
+            }
+            else
+            {
+                windchestItem = it["name"]["windchest"];
+            }
+            if (ipe["enclosure"] != "")
+            {
+                enclosureItem = ipe["enclosure"];
+            }
+            else
+            {
+                enclosureItem = it["name"]["enclosure"];
+            }
+            if (ipe["tremulant"] != "")
+            {
+                tremulantItem = ipe["tremulant"];
+            }
+            else
+            {
+                tremulantItem = it["name"]["tremulant"];
+            }
+            newPipe.windchest = windchestItem; // need wind weight too
+            for (auto &aElement : ipe["attacks"])
+            {
+                sampleItem newSItem;
+                sample newPipeSample;
+                newPipeSample.windchest = windchestItem;
+                newPipeSample.enclosure = enclosureItem;
+                newPipeSample.tremulant = tremulantItem;
+                newPipeSample.loops = aElement["loops"];
+                newPipeSample.pitchMult = aElement["pitchMult"];
+                newPipeSample.volMult = aElement["volMult"];
+
+                filename = aElement["file"];
+                newPipeSample.filename = filename;
+                wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
+                sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
+
+                nframes = inFileInfo.frames * inFileInfo.channels;
+                double data[nframes];
+
+                sf_read_double(wf, data, nframes);
+
+                sf_close(wf);
+
+                std::vector<double> newbuffer(data, data + nframes);
+                newPipeSample.data = newbuffer;
+                newPipeSample.loopEnd = nframes;
+
+                samples.push_back(newPipeSample);
+                newSItem.selectedSample = samples.size() - 1;
+
+                if (aElement["loops"] == 1)
+                {
+                    if (inst.loop_count > 0)
+                    {
+                        for (int ll = 0; ll < inst.loop_count; ll++)
+                        {
+                            loop newLoop;
+                            newLoop.start = inst.loops[ll].start;
+                            newLoop.end = inst.loops[ll].end;
+                            newSItem.loops.push_back(newLoop);
+                        }
+                    }
+                }
+                newPipe.attacks[aElement["velocity"]][aElement["time"]].push_back(newSItem);
+            }
+            for (auto &aElement : ipe["releases"])
+            {
+                sampleItem newSItem;
+                sample newPipeSample;
+                newPipeSample.windchest = windchestItem;
+                newPipeSample.enclosure = enclosureItem;
+                newPipeSample.tremulant = tremulantItem;
+                newPipeSample.loops = aElement["loops"];
+                newPipeSample.pitchMult = aElement["pitchMult"];
+                newPipeSample.volMult = aElement["volMult"];
+
+                filename = aElement["file"];
+                newPipeSample.filename = filename;
+                wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
+                sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
+
+                nframes = inFileInfo.frames * inFileInfo.channels;
+                double data[nframes];
+
+                sf_read_double(wf, data, nframes);
+
+                sf_close(wf);
+
+                std::vector<double> newbuffer(data, data + nframes);
+                newPipeSample.data = newbuffer;
+                newPipeSample.loopEnd = nframes;
+
+                samples.push_back(newPipeSample);
+                newSItem.selectedSample = samples.size() - 1;
+
+                if (aElement["loops"] == 1)
+                {
+                    if (inst.loop_count > 0)
+                    {
+                        for (int ll = 0; ll < inst.loop_count; ll++)
+                        {
+                            loop newLoop;
+                            newLoop.start = inst.loops[ll].start;
+                            newLoop.end = inst.loops[ll].end;
+                            newSItem.loops.push_back(newLoop);
+                        }
+                    }
+                }
+                newPipe.releases[aElement["velocity"]][aElement["time"]].push_back(newSItem);
+            }
+            ranks[it["name"]].pipes[ipe["number"]] = newPipe;
+        }
     }
 
     /*for (auto &rElement : config["ranks"])
