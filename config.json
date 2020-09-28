@@ -73,11 +73,56 @@
             ]
         }
     ],
-    "windchests": [
-
-    ],
+    "windchests": [],
     "tremulants": [
-
+        {
+            "name": "main",
+            "active": 0,
+            "speedMidichannel": 5,
+            "speedMidinote": 7,
+            "depthMidichannel": 5,
+            "depthMidinote": 6,
+            "frequency": 5000,
+            "depth": 0.015,
+            "speedStages": [
+                {
+                    "max": 50,
+                    "min": 0,
+                    "value": 0
+                }
+            ],
+            "depthStages": [
+                {
+                    "max": 50,
+                    "min": 0,
+                    "value": 0
+                }
+            ],
+            "onNoises": [
+                {
+                    "file": "02.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                }
+            ],
+            "offNoises": [
+                {
+                    "file": "03.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                }
+            ]
+        }
     ],
     "ranks": [
         {
