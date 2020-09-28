@@ -104,7 +104,7 @@
             ],
             "onNoises": [
                 {
-                    "file": "02.wav",
+                    "file": "04.wav",
                     "loops": 0,
                     "channelOne": 0,
                     "channelTwo": -1,
@@ -116,7 +116,7 @@
             ],
             "offNoises": [
                 {
-                    "file": "03.wav",
+                    "file": "01.wav",
                     "loops": 0,
                     "channelOne": 0,
                     "channelTwo": -1,

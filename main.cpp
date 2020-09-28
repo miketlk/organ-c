@@ -416,10 +416,6 @@ typedef struct
                     ranks[it.name].play(note + it.offset, velocity, name);
                 }
             }
-            for (auto &it : trems)
-            {
-                tremulants[it].on(name);
-            }
         }
     };
     void stop(int note, int velocity)
@@ -432,10 +428,6 @@ typedef struct
                 {
                     ranks[it.name].stop(note + it.offset, velocity, name);
                 }
-            }
-            for (auto &it : trems)
-            {
-                tremulants[it].off(name);
             }
         }
     };
@@ -466,6 +458,10 @@ typedef struct
                         ranks[it.name].stop(ki + it.offset, 0, name);
                     }
                 }
+            }
+            for (auto &it : trems)
+            {
+                tremulants[it].off(name);
             }
         }
     };
@@ -533,6 +529,10 @@ void stop::on()
                     }
                 }
             }
+        }
+        for (auto &it : trems)
+        {
+            tremulants[it].on(name);
         }
     }
 };
