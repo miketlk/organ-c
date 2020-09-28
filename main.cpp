@@ -129,6 +129,7 @@ typedef struct
 
 typedef struct
 {
+    std::string name;
     double maxHighpass;
     double minHighpass;
     double highpassLogFactor = 1.0;
@@ -193,6 +194,7 @@ void enclosure::recalculate()
 
 typedef struct
 {
+    std::string name;
     double pitchMult = 0.0;
     void recalculate()
     {
@@ -362,6 +364,7 @@ typedef struct
 
 typedef struct
 {
+    std::string name;
     std::unordered_map<int, pipe> pipes;
     void play(int note, int velocity, std::string stopName)
     {
@@ -1109,6 +1112,7 @@ int main(void)
     for (auto &it : config["enclosures"])
     {
         enclosures[it["name"]] = enclosure();
+        enclosures[it["name"]].name = it["name"];
         enclosures[it["name"]].midichannel = it["midichannel"];
         enclosures[it["name"]].midinote = it["midinote"];
         enclosures[it["name"]].enclosure = it["enclosure"];
@@ -1131,22 +1135,22 @@ int main(void)
         }
     }
 
-    for (auto &it : enclosures)
+    for (auto &it : config["windchests"])
     {
-        it.second.recalculate();
+        windchests[it["name"]] = windchest();
+        windchests[it["name"]].name = it["name"];
     }
 
-    for (auto &it : stops)
+    for (auto &it : config["ranks"])
     {
-        if (it.second.active == 1)
-        {
-            it.second.on();
-        }
+        ranks[it["name"]] = rank();
+        ranks[it["name"]].name = it["name"];
     }
 
     /*for (auto &rElement : config["ranks"])
     {
         ranks[rElement["name"]] = rank();
+        ranks[rElement["name"]].name = relemen
         std::ifstream rc(rElement["folder"].get<std::string>() + "/config.json");
         json rankConfig;
         rc >> rankConfig;
@@ -1160,6 +1164,19 @@ int main(void)
             ranks[rElement["name"]].pipes[pElement["number"]] = newPipe;
         }
     }*/
+
+    for (auto &it : enclosures)
+    {
+        it.second.recalculate();
+    }
+
+    for (auto &it : stops)
+    {
+        if (it.second.active == 1)
+        {
+            it.second.on();
+        }
+    }
 
     int selectedThread = 0;
     for (auto &it : samples)

@@ -73,7 +73,11 @@
             ]
         }
     ],
-    "windchests": [],
+    "windchests": [
+        {
+            "name": "chest1"
+        }
+    ],
     "tremulants": [
         {
             "name": "main",
