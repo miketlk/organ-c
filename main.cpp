@@ -34,6 +34,46 @@ using json = nlohmann::json;
 #define M_PI (3.14159265)
 #endif
 
+int closest(std::vector<int> vec, int value)
+{
+    int output;
+    std::vector<int>::iterator it;
+    it = lower_bound(vec.begin(), vec.end(), value);
+    if (it == vec.begin())
+    {
+        output = *it;
+    }
+    else if (it == vec.end())
+    {
+        output = *(it - 1);
+    }
+    else
+    {
+        output = -1;
+    }
+    return output;
+}
+
+double closest(std::vector<double> vec, int value)
+{
+    double output;
+    std::vector<double>::iterator it;
+    it = lower_bound(vec.begin(), vec.end(), value);
+    if (it == vec.begin())
+    {
+        output = *it;
+    }
+    else if (it == vec.end())
+    {
+        output = *(it - 1);
+    }
+    else
+    {
+        output = -1;
+    }
+    return output;
+}
+
 std::atomic<bool> exit_thread_flag{false};
 
 typedef struct
@@ -322,6 +362,8 @@ typedef struct
 
 std::unordered_map<std::string, tremulant> tremulants;
 
+bool sortfunction(int i, int j) { return (i < j); }
+
 typedef struct
 {
     std::string windchest = "";
@@ -349,7 +391,31 @@ typedef struct
                 playingRelease->stop(1);
                 playingRelease = NULL;
             }
-            // add attack
+            std::vector<int> velKeys;
+            std::vector<double> timeKeys;
+            for (auto kv : attacks)
+            {
+                velKeys.push_back(kv.first);
+            }
+            std::sort(velKeys.begin(), velKeys.end(), sortfunction);
+            int selectedVel = closest(velKeys, velocity);
+            if (selectedVel != -1)
+            {
+                for (auto kv : attacks[selectedVel])
+                {
+                    timeKeys.push_back(kv.first);
+                }
+                std::sort(timeKeys.begin(), timeKeys.end(), sortfunction);
+                std::chrono::system_clock::time_point newTime = std::chrono::system_clock::now();
+                double selectedTime = closest(timeKeys, std::chrono::duration_cast<std::chrono::milliseconds>(newTime - lastStopped).count());
+                if (selectedTime != -1)
+                {
+                    int Random;
+                    Random = std::rand() % attacks[selectedVel][selectedTime].size();
+                    attacks[selectedVel][selectedTime][Random].play(1);
+                    playingAttack = &attacks[selectedVel][selectedTime][Random];
+                }
+            }
         }
     }
     void stop(int velocity, std::string stopName)
@@ -361,9 +427,36 @@ typedef struct
             if (playingFor.empty())
             {
                 playing = 0;
-                playingAttack->stop(1);
-                playingAttack = NULL;
-                // add release
+                if (playingAttack)
+                {
+                    playingAttack->stop(1);
+                    playingAttack = NULL;
+                }
+                std::vector<int> velKeys;
+                std::vector<double> timeKeys;
+                for (auto kv : releases)
+                {
+                    velKeys.push_back(kv.first);
+                }
+                std::sort(velKeys.begin(), velKeys.end(), sortfunction);
+                int selectedVel = closest(velKeys, velocity);
+                if (selectedVel != -1)
+                {
+                    for (auto kv : releases[selectedVel])
+                    {
+                        timeKeys.push_back(kv.first);
+                    }
+                    std::sort(timeKeys.begin(), timeKeys.end(), sortfunction);
+                    std::chrono::system_clock::time_point newTime = std::chrono::system_clock::now();
+                    double selectedTime = closest(timeKeys, std::chrono::duration_cast<std::chrono::milliseconds>(newTime - lastPlayed).count());
+                    if (selectedTime != -1)
+                    {
+                        int Random;
+                        Random = std::rand() % releases[selectedVel][selectedTime].size();
+                        releases[selectedVel][selectedTime][Random].play(1);
+                        playingRelease = &releases[selectedVel][selectedTime][Random];
+                    }
+                }
             }
         }
     }
@@ -1175,7 +1268,7 @@ int main(void)
             }
             else
             {
-                windchestItem = it["name"]["windchest"];
+                windchestItem = it["windchest"];
             }
             if (ipe["enclosure"] != "")
             {
@@ -1183,7 +1276,7 @@ int main(void)
             }
             else
             {
-                enclosureItem = it["name"]["enclosure"];
+                enclosureItem = it["enclosure"];
             }
             if (ipe["tremulant"] != "")
             {
@@ -1191,7 +1284,7 @@ int main(void)
             }
             else
             {
-                tremulantItem = it["name"]["tremulant"];
+                tremulantItem = it["tremulant"];
             }
             newPipe.windchest = windchestItem; // need wind weight too
             for (auto &aElement : ipe["attacks"])
@@ -1288,23 +1381,16 @@ int main(void)
         }
     }
 
-    /*for (auto &rElement : config["ranks"])
+    int selectedThread = 0;
+    for (auto &it : samples)
     {
-        ranks[rElement["name"]] = rank();
-        ranks[rElement["name"]].name = relemen
-        std::ifstream rc(rElement["folder"].get<std::string>() + "/config.json");
-        json rankConfig;
-        rc >> rankConfig;
-        rc.close();
-        for (auto &pElement : rankConfig)
+        if (selectedThread >= available_threads)
         {
-            pipe newPipe;
-            for (auto &aElement : rElement["attacks"])
-            {
-            }
-            ranks[rElement["name"]].pipes[pElement["number"]] = newPipe;
+            selectedThread = 0;
         }
-    }*/
+        it.thread = selectedThread;
+        selectedThread += 1;
+    }
 
     for (auto &it : enclosures)
     {
@@ -1317,17 +1403,6 @@ int main(void)
         {
             it.second.on();
         }
-    }
-
-    int selectedThread = 0;
-    for (auto &it : samples)
-    {
-        if (selectedThread >= available_threads)
-        {
-            selectedThread = 0;
-        }
-        it.thread = selectedThread;
-        selectedThread += 1;
     }
 
     for (int i = 0; i < available_threads; i++)
@@ -1381,7 +1456,7 @@ int main(void)
         std::cout << ii << " - " << deviceInfo->name << std::endl;
     }
 
-    outputParameters.device = 9;
+    outputParameters.device = 6;
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");

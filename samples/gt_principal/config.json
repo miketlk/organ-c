@@ -1,6 +1,6 @@
 [
     {
-        "number": 36,
+        "number": 60,
         "enclosure": "",
         "tremulant": "",
         "windchest": "",
@@ -10,6 +10,16 @@
                 "time": 0.0,
                 "file": "01.wav",
                 "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ],
+        "releases": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "00.wav",
+                "loops": 0,
                 "pitchMult": 1.0,
                 "volMult": 1.0
             }
