@@ -684,13 +684,10 @@ void audioThreadFunc(int index)
                                 }
                             }
                         }
-                        if (it.playing == 1)
-                        {
-                            it.previousEnclosureVol = enclosurevol;
-                            it.previousEnclosureHighpass = enclosurehighpass;
-                            it.previousEnclosureLowpass = enclosurelowpass;
-                            it.pos += FRAMES_PER_BUFFER * pitch;
-                        }
+                        it.previousEnclosureVol = enclosurevol;
+                        it.previousEnclosureHighpass = enclosurehighpass;
+                        it.previousEnclosureLowpass = enclosurelowpass;
+                        it.pos += FRAMES_PER_BUFFER * pitch;
                     }
                 }
             }
