@@ -286,11 +286,11 @@ typedef struct
                 Random = std::rand() % onNoises.size();
                 onNoises[Random].play(0);
                 onNoise = &onNoises[Random];
-                if (offNoise)
-                {
-                    offNoise->stop(1);
-                    offNoise = NULL;
-                }
+            }
+            if (offNoise)
+            {
+                offNoise->stop(1);
+                offNoise = NULL;
             }
         }
     };
@@ -308,11 +308,11 @@ typedef struct
                     Random = std::rand() % offNoises.size();
                     offNoises[Random].play(1);
                     offNoise = &offNoises[Random];
-                    if (onNoise)
-                    {
-                        onNoise->stop(1);
-                        onNoise = NULL;
-                    }
+                }
+                if (onNoise)
+                {
+                    onNoise->stop(1);
+                    onNoise = NULL;
                 }
             }
         }
@@ -646,7 +646,7 @@ void audioThreadFunc(int index)
                         {
                             j = it.pos + i * pitch;
                             k = (int)j;
-                            if (k > it.loopEnd - 1 - pitch)
+                            if (k > it.loopEnd - 2 - pitch)
                             {
                                 if (it.loops == 1)
                                 {
@@ -1030,6 +1030,12 @@ int main(void)
             newSample.filename = filename;
             wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
             sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
+
+            if (inFileInfo.channels > 1)
+            {
+                std::cout << "file is not mono: " << filename << std::endl;
+                continue;
+            }
 
             nframes = inFileInfo.frames * inFileInfo.channels;
             double data[nframes];
