@@ -66,6 +66,7 @@ typedef struct
     int fadein = 0;
     double fadeinPos = 0;
     double panAngle = 45.0;
+    std::string filename = "";
 } sample;
 
 typedef struct
@@ -593,6 +594,7 @@ void audioThreadFunc(int index)
                 {
                     if (it.thread == index && it.playing == 1)
                     {
+                        //std::cout << it.filename << std::endl;
                         pitch = it.pitchMult;
                         if (it.windchest != "")
                         {
@@ -622,7 +624,7 @@ void audioThreadFunc(int index)
                         {
                             j = it.pos + i * pitch;
                             k = (int)j;
-                            if (k > it.loopEnd - 2 - pitch)
+                            if (k > it.loopEnd - 1 - pitch)
                             {
                                 if (it.loops == 1)
                                 {
@@ -633,55 +635,61 @@ void audioThreadFunc(int index)
                                     it.playing = 0;
                                 }
                             }
-                            if (it.fadeout == 1)
+                            if (it.playing == 1)
                             {
-                                if (it.fadeoutPos == FADEOUT_LENGTH)
+                                if (it.fadeout == 1)
                                 {
-                                    it.fadeout = 0;
-                                    it.playing = 0;
+                                    if (it.fadeoutPos == FADEOUT_LENGTH)
+                                    {
+                                        it.fadeout = 0;
+                                        it.playing = 0;
+                                    }
+                                    else
+                                    {
+                                        fadeoutvol = exp(1 * (it.fadeoutPos / FADEOUT_LENGTH)) * (1 - (it.fadeoutPos / FADEOUT_LENGTH));
+                                        it.fadeoutPos += 1;
+                                    }
+                                }
+                                if (it.fadein == 1)
+                                {
+                                    if (it.fadeinPos == FADEIN_LENGTH)
+                                    {
+                                        it.fadein = 0;
+                                    }
+                                    else
+                                    {
+                                        fadeinvol = exp(-1 * ((it.fadeinPos / FADEIN_LENGTH) - 1)) * (it.fadeinPos / FADEIN_LENGTH);
+                                        it.fadeinPos += 1;
+                                    }
+                                }
+                                val = (it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult;
+                                if (it.enclosure != "")
+                                {
+                                    lowpassFilter->calculate_coeffs((int)(((enclosurelowpass - it.previousEnclosureLowpass) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureLowpass, SAMPLE_RATE);     // cut off everything above this frequency
+                                    highpassFilter->calculate_coeffs((int)(((enclosurehighpass - it.previousEnclosureHighpass) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureHighpass, SAMPLE_RATE); // cut off everything below this frequency
+                                    val = lowpassFilter->process(val);
+                                    val = highpassFilter->process(val);
+                                    val *= (((enclosurevol - it.previousEnclosureVol) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureVol;
+                                }
+                                val = val * fadeoutvol * fadeinvol;
+                                if (it.channelTwo != -1)
+                                {
+                                    workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += val * cos(it.panAngle);
+                                    workingbuffer[(NUM_CHANNELS * i) + it.channelTwo] += val * sin(it.panAngle);
                                 }
                                 else
                                 {
-                                    fadeoutvol = exp(1 * (it.fadeoutPos / FADEOUT_LENGTH)) * (1 - (it.fadeoutPos / FADEOUT_LENGTH));
-                                    it.fadeoutPos += 1;
+                                    workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += val;
                                 }
-                            }
-                            if (it.fadein == 1)
-                            {
-                                if (it.fadeinPos == FADEIN_LENGTH)
-                                {
-                                    it.fadein = 0;
-                                }
-                                else
-                                {
-                                    fadeinvol = exp(-1 * ((it.fadeinPos / FADEIN_LENGTH) - 1)) * (it.fadeinPos / FADEIN_LENGTH);
-                                    it.fadeinPos += 1;
-                                }
-                            }
-                            val = (it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult;
-                            if (it.enclosure != "")
-                            {
-                                lowpassFilter->calculate_coeffs((int)(((enclosurelowpass - it.previousEnclosureLowpass) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureLowpass, SAMPLE_RATE);     // cut off everything above this frequency
-                                highpassFilter->calculate_coeffs((int)(((enclosurehighpass - it.previousEnclosureHighpass) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureHighpass, SAMPLE_RATE); // cut off everything below this frequency
-                                val = lowpassFilter->process(val);
-                                val = highpassFilter->process(val);
-                                val *= (((enclosurevol - it.previousEnclosureVol) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureVol;
-                            }
-                            val = val * fadeoutvol * fadeinvol;
-                            if (it.channelTwo != -1)
-                            {
-                                workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += val * cos(it.panAngle);
-                                workingbuffer[(NUM_CHANNELS * i) + it.channelTwo] += val * sin(it.panAngle);
-                            }
-                            else
-                            {
-                                workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += val;
                             }
                         }
-                        it.previousEnclosureVol = enclosurevol;
-                        it.previousEnclosureHighpass = enclosurehighpass;
-                        it.previousEnclosureLowpass = enclosurelowpass;
-                        it.pos += FRAMES_PER_BUFFER * pitch;
+                        if (it.playing == 1)
+                        {
+                            it.previousEnclosureVol = enclosurevol;
+                            it.previousEnclosureHighpass = enclosurehighpass;
+                            it.previousEnclosureLowpass = enclosurelowpass;
+                            it.pos += FRAMES_PER_BUFFER * pitch;
+                        }
                     }
                 }
             }
@@ -855,10 +863,12 @@ int main(void)
             newMapping.offset = ri["noteOffset"];
             stops[it["name"]].rnks.push_back(newMapping);
         }
+
         for (auto &ri : it["onNoises"])
         {
             sampleItem newOnNoise;
             sample newSample;
+
             newSample.loops = ri["loops"];
             newSample.channelOne = ri["channelOne"];
             newSample.channelTwo = ri["channelTwo"];
@@ -868,6 +878,7 @@ int main(void)
             newSample.enclosure = ri["enclosure"];
 
             filename = ri["file"];
+            newSample.filename = filename;
             wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
             sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
 
@@ -904,6 +915,7 @@ int main(void)
         {
             sampleItem newOffNoise;
             sample newSample;
+
             newSample.loops = ri["loops"];
             newSample.channelOne = ri["channelOne"];
             newSample.channelTwo = ri["channelTwo"];
@@ -913,6 +925,7 @@ int main(void)
             newSample.enclosure = ri["enclosure"];
 
             filename = ri["file"];
+            newSample.filename = filename;
             wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
             sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
 
