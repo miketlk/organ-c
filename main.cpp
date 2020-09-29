@@ -372,6 +372,9 @@ typedef struct
     std::string windchest = "";
     std::string tremulant = "";
     double windWeight = 0.0;
+    int channelOne = -1;
+    int channelTwo = -1;
+    double panAngle = -1.0;
     sampleItem *playingAttack = NULL;
     sampleItem *playingRelease = NULL;
     std::unordered_map<int, std::unordered_map<double, std::vector<sampleItem>>> attacks;
@@ -1294,6 +1297,9 @@ int main(void)
         std::string enclosureItem = "";
         std::string tremulantItem = "";
         std::string windchestItem = "";
+        int channelOneItem = 0;
+        int channelTwoItem = -1;
+        double panAngleItem = 45.0;
         for (auto &ipe : rankConfig)
         {
             pipe newPipe;
@@ -1321,6 +1327,30 @@ int main(void)
             {
                 tremulantItem = it["tremulant"];
             }
+            if (ipe["channelOne"] != -1)
+            {
+                channelOneItem = ipe["channelOne"];
+            }
+            else
+            {
+                channelOneItem = 0; // get from algorithm
+            }
+            if (ipe["channelTwo"] != -1)
+            {
+                channelTwoItem = ipe["channelTwo"];
+            }
+            else
+            {
+                channelTwoItem = -1; // get from algorithm
+            }
+            if (ipe["panAngle"] != -1.0)
+            {
+                panAngleItem = ipe["panAngle"];
+            }
+            else
+            {
+                panAngleItem = 45.0; // get from algorithm
+            }
             newPipe.windchest = windchestItem;
             //newPipe.windWeight
             newPipe.enclosure = enclosureItem;
@@ -1337,9 +1367,9 @@ int main(void)
                 newPipeSample.loops = aElement["loops"];
                 newPipeSample.pitchMult = aElement["pitchMult"].get<double>() * newPipe.pitchMult * ranks[it["name"]].pitchMult;
                 newPipeSample.volMult = aElement["volMult"].get<double>() * newPipe.volMult * ranks[it["name"]].volMult;
-                //newPipeSample.channelOne
-                //newPipeSample.channelTwo
-                //newPipeSample.panAngle
+                newPipeSample.channelOne = channelOneItem;
+                newPipeSample.channelTwo = channelTwoItem;
+                newPipeSample.panAngle = panAngleItem;
                 filename = "instrument/ranks/" + it["folder"].get<std::string>() + "/attack/" + aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
                 wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
@@ -1384,9 +1414,9 @@ int main(void)
                 newPipeSample.loops = aElement["loops"];
                 newPipeSample.pitchMult = aElement["pitchMult"].get<double>() * newPipe.pitchMult * ranks[it["name"]].pitchMult;
                 newPipeSample.volMult = aElement["volMult"].get<double>() * newPipe.volMult * ranks[it["name"]].volMult;
-                //newPipeSample.channelOne
-                //newPipeSample.channelTwo
-                //newPipeSample.panAngle
+                newPipeSample.channelOne = channelOneItem;
+                newPipeSample.channelTwo = channelTwoItem;
+                newPipeSample.panAngle = panAngleItem;
 
                 filename = "instrument/ranks/" + it["folder"].get<std::string>() + "/release/" + aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;

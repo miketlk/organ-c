@@ -6,6 +6,9 @@
         "windchest": "",
         "pitchMult": 1.0,
         "volMult": 1.0,
+        "channelOne": -1,
+        "channelTwo": -1,
+        "panAngle": -1.0,
         "attacks": [
             {
                 "velocity": 64,
@@ -34,6 +37,9 @@
         "windchest": "",
         "pitchMult": 1.0,
         "volMult": 1.0,
+        "channelOne": -1,
+        "channelTwo": -1,
+        "panAngle": -1.0,
         "attacks": [
             {
                 "velocity": 64,
