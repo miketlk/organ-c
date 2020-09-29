@@ -943,7 +943,7 @@ int main(void)
 {
     signal(2, signalHandler); // SIGINT
     const auto processor_count = std::thread::hardware_concurrency();
-    int available_threads = processor_count - 8;
+    int available_threads = processor_count - 10;
     //std::cout << available_threads << std::endl;
 
     std::ifstream ii("config.json");
