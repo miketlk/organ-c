@@ -513,7 +513,7 @@ typedef struct
             {
                 if ((note + it.offset) >= it.lowNote && (note + it.offset) <= it.highNote)
                 {
-                    ranks[it.name].play(note + it.offset, velocity, name);
+                    ranks.at(it.name).play(note + it.offset, velocity, name);
                 }
             }
         }
@@ -526,12 +526,12 @@ typedef struct
             {
                 if ((note + it.offset) >= it.lowNote && (note + it.offset) <= it.highNote)
                 {
-                    ranks[it.name].stop(note + it.offset, velocity, name);
+                    ranks.at(it.name).stop(note + it.offset, velocity, name);
                 }
             }
         }
     };
-    void on();
+    void on(int overrideActive);
     void off()
     {
         int Random;
@@ -555,13 +555,13 @@ typedef struct
                 {
                     if ((ki + it.offset) >= it.lowNote && (ki + it.offset) <= it.highNote)
                     {
-                        ranks[it.name].stop(ki + it.offset, 0, name);
+                        ranks.at(it.name).stop(ki + it.offset, 0, name);
                     }
                 }
             }
             for (auto &it : trems)
             {
-                tremulants[it].off(name);
+                tremulants.at(it).off(name);
             }
         }
     };
@@ -600,10 +600,10 @@ typedef struct
 
 std::unordered_map<std::string, keyboard> keyboards;
 
-void stop::on()
+void stop::on(int overrideActive)
 {
     int Random;
-    if (active == 0)
+    if (active == 0 || overrideActive == 1)
     {
         active = 1;
         if (onNoises.size() > 0)
@@ -625,14 +625,14 @@ void stop::on()
                 {
                     if ((ki + it.offset) >= it.lowNote && (ki + it.offset) <= it.highNote)
                     {
-                        ranks[it.name].play(ki + it.offset, 64, name);
+                        ranks.at(it.name).play(ki + it.offset, 64, name);
                     }
                 }
             }
         }
         for (auto &it : trems)
         {
-            tremulants[it].on(name);
+            tremulants.at(it).on(name);
         }
     }
 };
@@ -933,7 +933,7 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
         {
             if (it.second.midichannel == messagechannel && it.second.midinote == midinote)
             {
-                it.second.on();
+                it.second.on(0);
             }
         }
     }
@@ -1298,7 +1298,7 @@ int main(void)
                 newPipeSample.pitchMult = aElement["pitchMult"];
                 newPipeSample.volMult = aElement["volMult"];
 
-                filename = it["folder"].get<std::string>()+"/attack/"+aElement["file"].get<std::string>();
+                filename = it["folder"].get<std::string>() + "/attack/" + aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
                 wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
                 sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
@@ -1343,7 +1343,7 @@ int main(void)
                 newPipeSample.pitchMult = aElement["pitchMult"];
                 newPipeSample.volMult = aElement["volMult"];
 
-                filename = it["folder"].get<std::string>()+"/release/"+aElement["file"].get<std::string>();
+                filename = it["folder"].get<std::string>() + "/release/" + aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
                 wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
                 sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
@@ -1401,7 +1401,7 @@ int main(void)
     {
         if (it.second.active == 1)
         {
-            it.second.on();
+            it.second.on(1);
         }
     }
 
@@ -1456,7 +1456,7 @@ int main(void)
         std::cout << ii << " - " << deviceInfo->name << std::endl;
     }
 
-    outputParameters.device = 6;
+    outputParameters.device = config["audioDevice"];
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
