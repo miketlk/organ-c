@@ -74,6 +74,11 @@ double closest(std::vector<double> vec, int value)
     return output;
 }
 
+int flip(int num, int min, int max)
+{
+    return (max + min) - num;
+}
+
 std::atomic<bool> exit_thread_flag{false};
 
 typedef struct
@@ -966,6 +971,10 @@ double calculatePanAngle(int note, int startNote, int endNote, int layoutMode)
     {
         angle = (90.0 / (endNote - startNote)) * (note - startNote);
     }
+    else if (layoutMode == 1)
+    {
+        angle = (90.0 / (endNote - startNote)) * (flip(note, startNote, endNote) - startNote);
+    }
     return angle;
 }
 
@@ -1379,7 +1388,7 @@ int main(void)
             {
                 panAngleItem = calculatePanAngle(ipe["number"], it["startNote"], it["endNote"], it["layoutMode"]);
             }
-            std::cout << panAngleItem << std::endl;
+            //std::cout << panAngleItem << std::endl;
             newPipe.windchest = windchestItem;
             //newPipe.windWeight
             newPipe.enclosure = enclosureItem;
