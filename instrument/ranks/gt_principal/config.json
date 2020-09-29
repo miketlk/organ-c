@@ -184,5 +184,222 @@
                 "volMult": 1.0
             }
         ]
+    },
+    {
+        "number": 42,
+        "enclosure": "",
+        "tremulant": "",
+        "windchest": "",
+        "pitchMult": 1.0,
+        "volMult": 1.0,
+        "channelOne": -1,
+        "channelTwo": -1,
+        "panAngle": -1.0,
+        "attacks": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "042-f#.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ],
+        "releases": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "042-f#.wav",
+                "loops": 0,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ]
+    },
+    {
+        "number": 43,
+        "enclosure": "",
+        "tremulant": "",
+        "windchest": "",
+        "pitchMult": 1.0,
+        "volMult": 1.0,
+        "channelOne": -1,
+        "channelTwo": -1,
+        "panAngle": -1.0,
+        "attacks": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "043-g.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ],
+        "releases": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "043-g.wav",
+                "loops": 0,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ]
+    },
+    {
+        "number": 44,
+        "enclosure": "",
+        "tremulant": "",
+        "windchest": "",
+        "pitchMult": 1.0,
+        "volMult": 1.0,
+        "channelOne": -1,
+        "channelTwo": -1,
+        "panAngle": -1.0,
+        "attacks": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "044-g#.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ],
+        "releases": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "044-g#.wav",
+                "loops": 0,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ]
+    },
+    {
+        "number": 45,
+        "enclosure": "",
+        "tremulant": "",
+        "windchest": "",
+        "pitchMult": 1.0,
+        "volMult": 1.0,
+        "channelOne": -1,
+        "channelTwo": -1,
+        "panAngle": -1.0,
+        "attacks": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "045-a.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ],
+        "releases": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "045-a.wav",
+                "loops": 0,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ]
+    },
+    {
+        "number": 46,
+        "enclosure": "",
+        "tremulant": "",
+        "windchest": "",
+        "pitchMult": 1.0,
+        "volMult": 1.0,
+        "channelOne": -1,
+        "channelTwo": -1,
+        "panAngle": -1.0,
+        "attacks": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "046-a#.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ],
+        "releases": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "046-a#.wav",
+                "loops": 0,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ]
+    },
+    {
+        "number": 47,
+        "enclosure": "",
+        "tremulant": "",
+        "windchest": "",
+        "pitchMult": 1.0,
+        "volMult": 1.0,
+        "channelOne": -1,
+        "channelTwo": -1,
+        "panAngle": -1.0,
+        "attacks": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "047-b.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ],
+        "releases": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "047-b.wav",
+                "loops": 0,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ]
+    },
+    {
+        "number": 48,
+        "enclosure": "",
+        "tremulant": "",
+        "windchest": "",
+        "pitchMult": 1.0,
+        "volMult": 1.0,
+        "channelOne": -1,
+        "channelTwo": -1,
+        "panAngle": -1.0,
+        "attacks": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "048-c.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ],
+        "releases": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "048-c.wav",
+                "loops": 0,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ]
     }
 ]
