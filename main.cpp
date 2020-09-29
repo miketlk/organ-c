@@ -969,11 +969,11 @@ double calculatePanAngle(int note, int startNote, int endNote, int layoutMode)
     double angle = 45.0;
     if (layoutMode == 0)
     {
-        angle = (90.0 / ((endNote - startNote)+1)) * (note - startNote);
+        angle = (90.0 / ((endNote - startNote) + 1)) * (note - startNote);
     }
     else if (layoutMode == 1)
     {
-        angle = (90.0 / ((endNote - startNote)+1)) * (flip(note, startNote, endNote) - startNote);
+        angle = (90.0 / ((endNote - startNote) + 1)) * (flip(note, startNote, endNote) - startNote);
     }
     return angle;
 }
