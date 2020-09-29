@@ -30,9 +30,10 @@ static unsigned long FRAMES_PER_BUFFER = 256;
 #define FADEOUT_LENGTH (3000)
 #define FADEIN_LENGTH (3000)
 
-#ifndef M_PI
-#define M_PI (3.14159265)
-#endif
+static double d2r(double d)
+{
+    return (d / 180.0) * ((double)M_PI);
+}
 
 int closest(std::vector<int> vec, int value)
 {
@@ -821,8 +822,8 @@ void audioThreadFunc(int index)
                                 val = val * fadeoutvol * fadeinvol;
                                 if (it.channelTwo != -1)
                                 {
-                                    workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += val * cos(it.panAngle);
-                                    workingbuffer[(NUM_CHANNELS * i) + it.channelTwo] += val * sin(it.panAngle);
+                                    workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += (val * sin(d2r(it.panAngle)));
+                                    workingbuffer[(NUM_CHANNELS * i) + it.channelTwo] += (val * cos(d2r(it.panAngle)));
                                 }
                                 else
                                 {
@@ -969,11 +970,11 @@ double calculatePanAngle(int note, int startNote, int endNote, int layoutMode)
     double angle = 45.0;
     if (layoutMode == 0)
     {
-        angle = (90.0 / ((endNote - startNote) + 1)) * (note - startNote);
+        angle = (90.0 / (endNote - startNote)) * (note - startNote);
     }
     else if (layoutMode == 1)
     {
-        angle = (90.0 / ((endNote - startNote) + 1)) * (flip(note, startNote, endNote) - startNote);
+        angle = (90.0 / (endNote - startNote)) * (flip(note, startNote, endNote) - startNote);
     }
     return angle;
 }
