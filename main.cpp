@@ -763,8 +763,8 @@ void audioThreadFunc(int index)
                                 {
                                     if (it.fadeoutPos == FADEOUT_LENGTH)
                                     {
-                                        it.fadeout = 0;
                                         it.playing = 0;
+                                        it.fadeout = 0;
                                     }
                                     else
                                     {
