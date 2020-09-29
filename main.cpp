@@ -1256,7 +1256,7 @@ int main(void)
     {
         ranks[it["name"]] = rank();
         ranks[it["name"]].name = it["name"];
-        std::ifstream rc("instrument/" + it["folder"].get<std::string>() + "/config.json");
+        std::ifstream rc("instrument/ranks/" + it["folder"].get<std::string>() + "/config.json");
         json rankConfig;
         rc >> rankConfig;
         rc.close();
@@ -1303,7 +1303,7 @@ int main(void)
                 newPipeSample.pitchMult = aElement["pitchMult"];
                 newPipeSample.volMult = aElement["volMult"];
 
-                filename = "instrument/" + it["folder"].get<std::string>() + "/attack/" + aElement["file"].get<std::string>();
+                filename = "instrument/ranks/" + it["folder"].get<std::string>() + "/attack/" + aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
                 wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
                 sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
@@ -1348,7 +1348,7 @@ int main(void)
                 newPipeSample.pitchMult = aElement["pitchMult"];
                 newPipeSample.volMult = aElement["volMult"];
 
-                filename = "instrument/" + it["folder"].get<std::string>() + "/release/" + aElement["file"].get<std::string>();
+                filename = "instrument/ranks/" + it["folder"].get<std::string>() + "/release/" + aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
                 wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
                 sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
