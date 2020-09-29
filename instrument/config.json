@@ -124,6 +124,8 @@
             "enclosure": "",
             "tremulant": "",
             "windchest": "",
+            "pitchMult": 1.0,
+            "volMult": 1.0,
             "trebleChannelOne": 0,
             "trebleChannelTwo": -1,
             "bassChannelOne": 0,

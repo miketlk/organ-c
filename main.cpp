@@ -366,7 +366,11 @@ bool sortfunction(int i, int j) { return (i < j); }
 
 typedef struct
 {
+    double pitchMult = 1.0;
+    double volMult = 1.0;
+    std::string enclosure = "";
     std::string windchest = "";
+    std::string tremulant = "";
     double windWeight = 0.0;
     sampleItem *playingAttack = NULL;
     sampleItem *playingRelease = NULL;
@@ -465,6 +469,17 @@ typedef struct
 typedef struct
 {
     std::string name;
+    double pitchMult = 1.0;
+    double volMult = 1.0;
+    std::string enclosure = "";
+    std::string windchest = "";
+    std::string tremulant = "";
+    int trebleChannelOne = 0;
+    int trebleChannelTwo = -1;
+    int bassChannelOne = 0;
+    int bassChannelTwo = -1;
+    int trebleBassSplit = 45;
+    int layoutMode = 0;
     std::unordered_map<int, pipe> pipes;
     void play(int note, int velocity, std::string stopName)
     {
@@ -1256,6 +1271,17 @@ int main(void)
     {
         ranks[it["name"]] = rank();
         ranks[it["name"]].name = it["name"];
+        ranks[it["name"]].pitchMult = it["pitchMult"];
+        ranks[it["name"]].volMult = it["volMult"];
+        ranks[it["name"]].enclosure = it["enclosure"];
+        ranks[it["name"]].windchest = it["windchest"];
+        ranks[it["name"]].tremulant = it["tremulant"];
+        ranks[it["name"]].trebleChannelOne = it["trebleChannelOne"];
+        ranks[it["name"]].trebleChannelTwo = it["trebleChannelTwo"];
+        ranks[it["name"]].bassChannelOne = it["bassChannelOne"];
+        ranks[it["name"]].bassChannelTwo = it["bassChannelTwo"];
+        ranks[it["name"]].trebleBassSplit = it["trebleBassSplit"];
+        ranks[it["name"]].layoutMode = it["layoutMode"];
         std::ifstream rc("instrument/ranks/" + it["folder"].get<std::string>() + "/config.json");
         json rankConfig;
         rc >> rankConfig;
@@ -1292,6 +1318,11 @@ int main(void)
                 tremulantItem = it["tremulant"];
             }
             newPipe.windchest = windchestItem; // need wind weight too
+            //newPipe.windWeight
+            newPipe.enclosure = enclosureItem;
+            newPipe.tremulant = tremulantItem;
+            newPipe.pitchMult = ipe["pitchMult"];
+            newPipe.volMult = ipe["volMult"];
             for (auto &aElement : ipe["attacks"])
             {
                 sampleItem newSItem;
@@ -1300,9 +1331,11 @@ int main(void)
                 newPipeSample.enclosure = enclosureItem;
                 newPipeSample.tremulant = tremulantItem;
                 newPipeSample.loops = aElement["loops"];
-                newPipeSample.pitchMult = aElement["pitchMult"];
-                newPipeSample.volMult = aElement["volMult"];
-
+                newPipeSample.pitchMult = aElement["pitchMult"].get<double>() * newPipe.pitchMult * ranks[it["name"]].pitchMult;
+                newPipeSample.volMult = aElement["volMult"].get<double>() * newPipe.volMult * ranks[it["name"]].volMult;
+                //newPipeSample.channelOne
+                //newPipeSample.channelTwo
+                //newPipeSample.panAngle
                 filename = "instrument/ranks/" + it["folder"].get<std::string>() + "/attack/" + aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
                 wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
@@ -1345,8 +1378,11 @@ int main(void)
                 newPipeSample.enclosure = enclosureItem;
                 newPipeSample.tremulant = tremulantItem;
                 newPipeSample.loops = aElement["loops"];
-                newPipeSample.pitchMult = aElement["pitchMult"];
-                newPipeSample.volMult = aElement["volMult"];
+                newPipeSample.pitchMult = aElement["pitchMult"].get<double>() * newPipe.pitchMult * ranks[it["name"]].pitchMult;
+                newPipeSample.volMult = aElement["volMult"].get<double>() * newPipe.volMult * ranks[it["name"]].volMult;
+                //newPipeSample.channelOne
+                //newPipeSample.channelTwo
+                //newPipeSample.panAngle
 
                 filename = "instrument/ranks/" + it["folder"].get<std::string>() + "/release/" + aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
@@ -1495,7 +1531,7 @@ int main(void)
         fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
     }
 
-    midiin->openPort(1);
+    midiin->openPort(sconfig["midiDevice"]);
     midiin->setCallback(&MidiCallback);
 
     while (!exit_thread_flag)

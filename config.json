@@ -1,4 +1,5 @@
 {
     "audioDevice": 9,
+    "midiDevice": 1,
     "instrumentConfig": "config.json"
 }
