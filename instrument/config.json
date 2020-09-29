@@ -1,0 +1,135 @@
+{
+    "keyboards": [
+        {
+            "name": "great",
+            "midichannel": 1
+        }
+    ],
+    "stops": [
+        {
+            "name": "great-principal",
+            "keyboard": "great",
+            "midichannel": 7,
+            "midinote": 60,
+            "active": 1,
+            "ranks": [
+                {
+                    "name": "gt-principal-8",
+                    "lowNote": 36,
+                    "highNote": 96,
+                    "noteOffset": 0
+                }
+            ],
+            "tremulants": [
+                "main"
+            ],
+            "onNoises": [
+                {
+                    "file": "02.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                }
+            ],
+            "offNoises": [
+                {
+                    "file": "03.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                }
+            ]
+        }
+    ],
+    "enclosures": [
+        {
+            "name": "swell",
+            "midichannel": 1,
+            "midinote": 7,
+            "enclosure": "",
+            "maxHighpass": 1000,
+            "minHighpass": 500,
+            "highpassLogFactor": 1.0,
+            "maxLowpass": 10000,
+            "minLowpass": 5000,
+            "lowpassLogFactor": 1.0,
+            "maxVolume": 1.0,
+            "minVolume": 0.0,
+            "volumeLogFactor": 1.0,
+            "stages": [
+                {
+                    "max": 50,
+                    "min": 0,
+                    "value": 0
+                }
+            ]
+        }
+    ],
+    "windchests": [
+        {
+            "name": "chest1"
+        }
+    ],
+    "tremulants": [
+        {
+            "name": "main",
+            "active": 0,
+            "speedMidichannel": 5,
+            "speedMidinote": 7,
+            "depthMidichannel": 5,
+            "depthMidinote": 6,
+            "frequency": 5000,
+            "depth": 0.015,
+            "speedStages": [
+                {
+                    "max": 50,
+                    "min": 0,
+                    "value": 0
+                }
+            ],
+            "depthStages": [
+                {
+                    "max": 50,
+                    "min": 0,
+                    "value": 0
+                }
+            ],
+            "onNoises": [
+                {
+                    "file": "Tremulant.wav",
+                    "loops": 1,
+                    "channelOne": 1,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 5.0,
+                    "enclosure": ""
+                }
+            ],
+            "offNoises": []
+        }
+    ],
+    "ranks": [
+        {
+            "name": "gt-principal-8",
+            "folder": "gt_principal",
+            "enclosure": "",
+            "tremulant": "",
+            "windchest": "",
+            "trebleChannelOne": 0,
+            "trebleChannelTwo": -1,
+            "bassChannelOne": 0,
+            "bassChannelTwo": -1,
+            "trebleBassSplit": 45,
+            "layoutMode": 0
+        }
+    ]
+}

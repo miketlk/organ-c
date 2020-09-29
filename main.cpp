@@ -946,7 +946,12 @@ int main(void)
     int available_threads = processor_count - 10;
     //std::cout << available_threads << std::endl;
 
-    std::ifstream ii("config.json");
+    std::ifstream iis("config.json");
+    json sconfig;
+    iis >> sconfig;
+    iis.close();
+
+    std::ifstream ii("instrument/" + sconfig["instrumentConfig"].get<std::string>());
     json config;
     ii >> config;
     ii.close();
@@ -1003,7 +1008,7 @@ int main(void)
             newSample.volMult = ri["volMult"];
             newSample.enclosure = ri["enclosure"];
 
-            filename = ri["file"];
+            filename = "instrument/noises/" + ri["file"].get<std::string>();
             newSample.filename = filename;
             wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
             sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
@@ -1050,7 +1055,7 @@ int main(void)
             newSample.volMult = ri["volMult"];
             newSample.enclosure = ri["enclosure"];
 
-            filename = ri["file"];
+            filename = "instrument/noises/" + ri["file"].get<std::string>();
             newSample.filename = filename;
             wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
             sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
@@ -1126,7 +1131,7 @@ int main(void)
             newSample.volMult = ri["volMult"];
             newSample.enclosure = ri["enclosure"];
 
-            filename = ri["file"];
+            filename = "instrument/noises/" + ri["file"].get<std::string>();
             newSample.filename = filename;
             wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
             sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
@@ -1179,7 +1184,7 @@ int main(void)
             newSample.volMult = ri["volMult"];
             newSample.enclosure = ri["enclosure"];
 
-            filename = ri["file"];
+            filename = "instrument/noises/" + ri["file"].get<std::string>();
             newSample.filename = filename;
             wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
             sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
@@ -1251,7 +1256,7 @@ int main(void)
     {
         ranks[it["name"]] = rank();
         ranks[it["name"]].name = it["name"];
-        std::ifstream rc(it["folder"].get<std::string>() + "/config.json");
+        std::ifstream rc("instrument/" + it["folder"].get<std::string>() + "/config.json");
         json rankConfig;
         rc >> rankConfig;
         rc.close();
@@ -1298,7 +1303,7 @@ int main(void)
                 newPipeSample.pitchMult = aElement["pitchMult"];
                 newPipeSample.volMult = aElement["volMult"];
 
-                filename = it["folder"].get<std::string>() + "/attack/" + aElement["file"].get<std::string>();
+                filename = "instrument/" + it["folder"].get<std::string>() + "/attack/" + aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
                 wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
                 sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
@@ -1343,7 +1348,7 @@ int main(void)
                 newPipeSample.pitchMult = aElement["pitchMult"];
                 newPipeSample.volMult = aElement["volMult"];
 
-                filename = it["folder"].get<std::string>() + "/release/" + aElement["file"].get<std::string>();
+                filename = "instrument/" + it["folder"].get<std::string>() + "/release/" + aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
                 wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
                 sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
@@ -1456,7 +1461,7 @@ int main(void)
         std::cout << ii << " - " << deviceInfo->name << std::endl;
     }
 
-    outputParameters.device = config["audioDevice"];
+    outputParameters.device = sconfig["audioDevice"];
     if (outputParameters.device == paNoDevice)
     {
         fprintf(stderr, "Error: The selected audio device could not be found.\n");
