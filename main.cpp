@@ -23,9 +23,9 @@
 
 using json = nlohmann::json;
 
-#define SAMPLE_RATE (48000)
-#define NUM_CHANNELS (2)
-#define FRAMES_PER_BUFFER (256)
+static unsigned long SAMPLE_RATE = 48000;
+static unsigned long NUM_CHANNELS = 2;
+static unsigned long FRAMES_PER_BUFFER = 256;
 #define SAMPLE_SILENCE (0.0f)
 #define FADEOUT_LENGTH (3000)
 #define FADEIN_LENGTH (3000)
@@ -966,6 +966,10 @@ int main(void)
     iis >> sconfig;
     iis.close();
 
+    NUM_CHANNELS = sconfig["numChannels"];
+    SAMPLE_RATE = sconfig["sampleRate"];
+    FRAMES_PER_BUFFER = sconfig["framesPerBuffer"];
+
     std::ifstream ii("instrument/" + sconfig["instrumentConfig"].get<std::string>());
     json config;
     ii >> config;
@@ -1317,7 +1321,7 @@ int main(void)
             {
                 tremulantItem = it["tremulant"];
             }
-            newPipe.windchest = windchestItem; // need wind weight too
+            newPipe.windchest = windchestItem;
             //newPipe.windWeight
             newPipe.enclosure = enclosureItem;
             newPipe.tremulant = tremulantItem;

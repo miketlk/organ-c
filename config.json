@@ -1,5 +1,8 @@
 {
-    "audioDevice": 9,
+    "audioDevice": 6,
     "midiDevice": 1,
+    "numChannels": 2,
+    "sampleRate": 48000,
+    "framesPerBuffer": 256,
     "instrumentConfig": "config.json"
 }
