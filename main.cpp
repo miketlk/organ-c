@@ -482,6 +482,8 @@ typedef struct
     int bassChannelOne = 0;
     int bassChannelTwo = -1;
     int trebleBassSplit = 45;
+    int startNote = 0;
+    int endNote = 127;
     int layoutMode = 0;
     std::unordered_map<int, pipe> pipes;
     void play(int note, int velocity, std::string stopName)
@@ -957,6 +959,16 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
     }
 }
 
+double calculatePanAngle(int note, int startNote, int endNote, int layoutMode)
+{
+    double angle = 45.0;
+    if (layoutMode == 0)
+    {
+        angle = (90.0 / (endNote - startNote)) * (note - startNote);
+    }
+    return angle;
+}
+
 int main(void)
 {
     signal(2, signalHandler); // SIGINT
@@ -1288,6 +1300,8 @@ int main(void)
         ranks[it["name"]].bassChannelOne = it["bassChannelOne"];
         ranks[it["name"]].bassChannelTwo = it["bassChannelTwo"];
         ranks[it["name"]].trebleBassSplit = it["trebleBassSplit"];
+        ranks[it["name"]].startNote = it["startNote"];
+        ranks[it["name"]].endNote = it["endNote"];
         ranks[it["name"]].layoutMode = it["layoutMode"];
         std::ifstream rc("instrument/ranks/" + it["folder"].get<std::string>() + "/config.json");
         json rankConfig;
@@ -1333,7 +1347,14 @@ int main(void)
             }
             else
             {
-                channelOneItem = 0; // get from algorithm
+                if (ipe["number"] >= it["trebleBassSplit"])
+                {
+                    channelOneItem = it["trebleChannelOne"];
+                }
+                else
+                {
+                    channelOneItem = it["bassChannelOne"];
+                }
             }
             if (ipe["channelTwo"] != -1)
             {
@@ -1341,7 +1362,14 @@ int main(void)
             }
             else
             {
-                channelTwoItem = -1; // get from algorithm
+                if (ipe["number"] >= it["trebleBassSplit"])
+                {
+                    channelTwoItem = it["trebleChannelTwo"];
+                }
+                else
+                {
+                    channelTwoItem = it["bassChannelTwo"];
+                }
             }
             if (ipe["panAngle"] != -1.0)
             {
@@ -1349,8 +1377,9 @@ int main(void)
             }
             else
             {
-                panAngleItem = 45.0; // get from algorithm
+                panAngleItem = calculatePanAngle(ipe["number"], it["startNote"], it["endNote"], it["layoutMode"]);
             }
+            std::cout << panAngleItem << std::endl;
             newPipe.windchest = windchestItem;
             //newPipe.windWeight
             newPipe.enclosure = enclosureItem;

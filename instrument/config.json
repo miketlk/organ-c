@@ -127,10 +127,12 @@
             "pitchMult": 1.0,
             "volMult": 1.0,
             "trebleChannelOne": 0,
-            "trebleChannelTwo": -1,
+            "trebleChannelTwo": 1,
             "bassChannelOne": 0,
             "bassChannelTwo": -1,
             "trebleBassSplit": 45,
+            "startNote": 36,
+            "endNote": 96,
             "layoutMode": 0
         }
     ]
