@@ -27,8 +27,8 @@ using json = nlohmann::json;
 #define NUM_CHANNELS (2)
 #define FRAMES_PER_BUFFER (256)
 #define SAMPLE_SILENCE (0.0f)
-#define FADEOUT_LENGTH (1000)
-#define FADEIN_LENGTH (1000)
+#define FADEOUT_LENGTH (3000)
+#define FADEIN_LENGTH (3000)
 
 #ifndef M_PI
 #define M_PI (3.14159265)
@@ -325,8 +325,8 @@ typedef struct
             if (onNoises.size() > 0)
             {
                 Random = std::rand() % onNoises.size();
-                onNoises[Random].play(0);
                 onNoise = &onNoises[Random];
+                onNoises[Random].play(0);
             }
             if (offNoise)
             {
@@ -347,8 +347,8 @@ typedef struct
                 if (offNoises.size() > 0)
                 {
                     Random = std::rand() % offNoises.size();
-                    offNoises[Random].play(1);
                     offNoise = &offNoises[Random];
+                    offNoises[Random].play(1);
                 }
                 if (onNoise)
                 {
@@ -412,8 +412,8 @@ typedef struct
                 {
                     int Random;
                     Random = std::rand() % attacks[selectedVel][selectedTime].size();
-                    attacks[selectedVel][selectedTime][Random].play(1);
                     playingAttack = &attacks[selectedVel][selectedTime][Random];
+                    attacks[selectedVel][selectedTime][Random].play(1);
                 }
             }
         }
@@ -453,8 +453,8 @@ typedef struct
                     {
                         int Random;
                         Random = std::rand() % releases[selectedVel][selectedTime].size();
-                        releases[selectedVel][selectedTime][Random].play(1);
                         playingRelease = &releases[selectedVel][selectedTime][Random];
+                        releases[selectedVel][selectedTime][Random].play(1);
                     }
                 }
             }
@@ -541,8 +541,8 @@ typedef struct
             if (offNoises.size() > 0)
             {
                 Random = std::rand() % offNoises.size();
-                offNoises[Random].play(1);
                 offNoise = &offNoises[Random];
+                offNoises[Random].play(1);
             }
             if (onNoise)
             {
@@ -609,8 +609,8 @@ void stop::on()
         if (onNoises.size() > 0)
         {
             Random = std::rand() % onNoises.size();
-            onNoises[Random].play(0);
             onNoise = &onNoises[Random];
+            onNoises[Random].play(0);
         }
         if (offNoise)
         {
@@ -863,18 +863,18 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
     int messagevalue;
     unsigned int nBytes = message->size();
     messagetype = message->at(0) >> 4;
-    std::cout << "Type: " << messagetype << std::endl;
+    //std::cout << "Type: " << messagetype << std::endl;
     messagechannel = (message->at(0) & 15) + 1;
-    std::cout << "Channel: " << messagechannel << std::endl;
+    //std::cout << "Channel: " << messagechannel << std::endl;
     if (nBytes > 1)
     {
         midinote = message->at(1);
-        std::cout << "Note: " << midinote << std::endl;
+        //std::cout << "Note: " << midinote << std::endl;
     }
     if (nBytes > 2)
     {
         messagevalue = message->at(2);
-        std::cout << "Value: " << messagevalue << std::endl;
+        //std::cout << "Value: " << messagevalue << std::endl;
     }
     if (messagetype == 11)
     {
@@ -1298,7 +1298,7 @@ int main(void)
                 newPipeSample.pitchMult = aElement["pitchMult"];
                 newPipeSample.volMult = aElement["volMult"];
 
-                filename = aElement["file"];
+                filename = it["folder"].get<std::string>()+"/attack/"+aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
                 wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
                 sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
@@ -1343,7 +1343,7 @@ int main(void)
                 newPipeSample.pitchMult = aElement["pitchMult"];
                 newPipeSample.volMult = aElement["volMult"];
 
-                filename = aElement["file"];
+                filename = it["folder"].get<std::string>()+"/release/"+aElement["file"].get<std::string>();
                 newPipeSample.filename = filename;
                 wf = sf_open(filename.c_str(), SFM_READ, &inFileInfo);
                 sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));

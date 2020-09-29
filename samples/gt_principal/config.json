@@ -8,7 +8,7 @@
             {
                 "velocity": 64,
                 "time": 0.0,
-                "file": "01.wav",
+                "file": "060-c.wav",
                 "loops": 1,
                 "pitchMult": 1.0,
                 "volMult": 1.0
@@ -18,7 +18,41 @@
             {
                 "velocity": 64,
                 "time": 0.0,
-                "file": "00.wav",
+                "file": "060-c.wav",
+                "loops": 0,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ]
+    },
+    {
+        "number": 36,
+        "enclosure": "",
+        "tremulant": "",
+        "windchest": "",
+        "attacks": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "36.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            },
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "36-2.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ],
+        "releases": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "36.wav",
                 "loops": 0,
                 "pitchMult": 1.0,
                 "volMult": 1.0
