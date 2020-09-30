@@ -401,5 +401,36 @@
                 "volMult": 1.0
             }
         ]
+    },
+    {
+        "number": 60,
+        "enclosure": "",
+        "tremulant": "",
+        "windchest": "",
+        "pitchMult": 1.0,
+        "volMult": 1.0,
+        "channelOne": -1,
+        "channelTwo": -1,
+        "panAngle": -1.0,
+        "attacks": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "60.wav",
+                "loops": 1,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ],
+        "releases": [
+            {
+                "velocity": 64,
+                "time": 0.0,
+                "file": "60.wav",
+                "loops": 0,
+                "pitchMult": 1.0,
+                "volMult": 1.0
+            }
+        ]
     }
 ]

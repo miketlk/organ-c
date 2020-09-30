@@ -27,7 +27,7 @@ static unsigned long SAMPLE_RATE = 48000;
 static unsigned long NUM_CHANNELS = 2;
 static unsigned long FRAMES_PER_BUFFER = 256;
 #define SAMPLE_SILENCE (0.0f)
-#define FADEOUT_LENGTH (3000)
+#define FADEOUT_LENGTH (5000)
 #define FADEIN_LENGTH (3000)
 
 static double d2r(double d)
