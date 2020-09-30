@@ -26,6 +26,7 @@ using json = nlohmann::json;
 static unsigned long SAMPLE_RATE = 48000;
 static unsigned long NUM_CHANNELS = 2;
 static unsigned long FRAMES_PER_BUFFER = 256;
+static double GLOBAL_VOL = 1.0;
 #define SAMPLE_SILENCE (0.0f)
 #define FADEOUT_LENGTH (5000)
 #define FADEIN_LENGTH (3000)
@@ -398,12 +399,7 @@ typedef struct
         if (playing == 0)
         {
             lastPlayed = std::chrono::system_clock::now();
-            playing = 1;
-            if (playingRelease)
-            {
-                playingRelease->stop(1);
-                playingRelease = NULL;
-            }
+
             std::vector<int> velKeys;
             std::vector<double> timeKeys;
             for (auto kv : attacks)
@@ -429,6 +425,12 @@ typedef struct
                     attacks[selectedVel][selectedTime][Random].play(1);
                 }
             }
+            playing = 1;
+            if (playingRelease)
+            {
+                playingRelease->stop(1);
+                playingRelease = NULL;
+            }
         }
     }
     void stop(int velocity, std::string stopName)
@@ -439,12 +441,7 @@ typedef struct
             playingFor.erase(std::remove(playingFor.begin(), playingFor.end(), stopName), playingFor.end());
             if (playingFor.empty())
             {
-                playing = 0;
-                if (playingAttack)
-                {
-                    playingAttack->stop(1);
-                    playingAttack = NULL;
-                }
+
                 std::vector<int> velKeys;
                 std::vector<double> timeKeys;
                 for (auto kv : releases)
@@ -469,6 +466,12 @@ typedef struct
                         playingRelease = &releases[selectedVel][selectedTime][Random];
                         releases[selectedVel][selectedTime][Random].play(1);
                     }
+                }
+                playing = 0;
+                if (playingAttack)
+                {
+                    playingAttack->stop(1);
+                    playingAttack = NULL;
                 }
             }
         }
@@ -703,6 +706,10 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
                 outmainbuffer[i] += inbuffer[i];
             }
         }
+        else
+        {
+            std::cout << "underflow thread: " << j << std::endl;
+        }
     }
     for (i = 0; i < frames; i++)
     {
@@ -822,12 +829,12 @@ void audioThreadFunc(int index)
                                 val = val * fadeoutvol * fadeinvol;
                                 if (it.channelTwo != -1)
                                 {
-                                    workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += (val * sin(d2r(it.panAngle)));
-                                    workingbuffer[(NUM_CHANNELS * i) + it.channelTwo] += (val * cos(d2r(it.panAngle)));
+                                    workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += (val * sin(d2r(it.panAngle))) * GLOBAL_VOL;
+                                    workingbuffer[(NUM_CHANNELS * i) + it.channelTwo] += (val * cos(d2r(it.panAngle))) * GLOBAL_VOL;
                                 }
                                 else
                                 {
-                                    workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += val;
+                                    workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += val * GLOBAL_VOL;
                                 }
                             }
                         }
@@ -994,6 +1001,7 @@ int main(void)
     NUM_CHANNELS = sconfig["numChannels"];
     SAMPLE_RATE = sconfig["sampleRate"];
     FRAMES_PER_BUFFER = sconfig["framesPerBuffer"];
+    GLOBAL_VOL = sconfig["globalVol"];
 
     std::ifstream ii("instrument/" + sconfig["instrumentConfig"].get<std::string>());
     json config;
@@ -1612,17 +1620,6 @@ int main(void)
         Pa_Sleep(500);
     }
 
-    voicingThread.join();
-    windThread.join();
-    tremThread.join();
-
-    for (long unsigned int i = 0; i < audioThreads.size(); i++)
-    {
-        audioThreads[i].thread.join();
-    }
-
-    delete midiin;
-
     err = Pa_StopStream(stream);
     if (err != paNoError)
     {
@@ -1640,6 +1637,17 @@ int main(void)
     }
 
     Pa_Terminate();
+
+    voicingThread.join();
+    windThread.join();
+    tremThread.join();
+
+    for (long unsigned int i = 0; i < audioThreads.size(); i++)
+    {
+        audioThreads[i].thread.join();
+    }
+
+    delete midiin;
 
     return err;
 }
