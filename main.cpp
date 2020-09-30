@@ -27,9 +27,9 @@ static unsigned long SAMPLE_RATE = 48000;
 static unsigned long NUM_CHANNELS = 2;
 static unsigned long FRAMES_PER_BUFFER = 256;
 static double GLOBAL_VOL = 1.0;
-#define SAMPLE_SILENCE (0.0f)
-#define FADEOUT_LENGTH (5000)
-#define FADEIN_LENGTH (3000)
+#define SAMPLE_SILENCE (0.0)
+#define FADEOUT_LENGTH (2500)
+#define FADEIN_LENGTH (5000)
 
 static double d2r(double d)
 {
@@ -131,7 +131,7 @@ typedef struct
     std::vector<loop> loops;
     void play(int fadein)
     {
-        if (samples[selectedSample].playing != 1)
+        if (samples[selectedSample].playing != 1 || (samples[selectedSample].playing == 1 && samples[selectedSample].fadeout == 1))
         {
             samples[selectedSample].pos = 0;
             samples[selectedSample].fadeout = 0;
@@ -333,7 +333,7 @@ typedef struct
             {
                 Random = std::rand() % onNoises.size();
                 onNoise = &onNoises[Random];
-                onNoises[Random].play(0);
+                onNoises[Random].play(1);
             }
             if (offNoise)
             {
@@ -422,14 +422,14 @@ typedef struct
                     int Random;
                     Random = std::rand() % attacks[selectedVel][selectedTime].size();
                     playingAttack = &attacks[selectedVel][selectedTime][Random];
+                    playing = 1;
                     attacks[selectedVel][selectedTime][Random].play(1);
+                    if (playingRelease)
+                    {
+                        playingRelease->stop(1);
+                        playingRelease = NULL;
+                    }
                 }
-            }
-            playing = 1;
-            if (playingRelease)
-            {
-                playingRelease->stop(1);
-                playingRelease = NULL;
             }
         }
     }
@@ -465,13 +465,13 @@ typedef struct
                         Random = std::rand() % releases[selectedVel][selectedTime].size();
                         playingRelease = &releases[selectedVel][selectedTime][Random];
                         releases[selectedVel][selectedTime][Random].play(1);
+                        playing = 0;
+                        if (playingAttack)
+                        {
+                            playingAttack->stop(1);
+                            playingAttack = NULL;
+                        }
                     }
-                }
-                playing = 0;
-                if (playingAttack)
-                {
-                    playingAttack->stop(1);
-                    playingAttack = NULL;
                 }
             }
         }
@@ -639,7 +639,7 @@ void stop::on(int overrideActive)
         {
             Random = std::rand() % onNoises.size();
             onNoise = &onNoises[Random];
-            onNoises[Random].play(0);
+            onNoises[Random].play(1);
         }
         if (offNoise)
         {
