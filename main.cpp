@@ -28,8 +28,8 @@ static unsigned long NUM_CHANNELS = 2;
 static unsigned long FRAMES_PER_BUFFER = 256;
 static double GLOBAL_VOL = 1.0;
 #define SAMPLE_SILENCE (0.0)
-#define FADEOUT_LENGTH (2500)
-#define FADEIN_LENGTH (5000)
+#define FADEOUT_LENGTH (2000)
+#define FADEIN_LENGTH (4500)
 
 static double d2r(double d)
 {
@@ -107,8 +107,6 @@ typedef struct
     std::string windchest = "";
     std::string tremulant = "";
     double previousEnclosureVol = 1.0;
-    int previousEnclosureHighpass = -1;
-    int previousEnclosureLowpass = -1;
     int fadeout = 0;
     double fadeoutPos = 0;
     int fadein = 0;
@@ -766,14 +764,8 @@ void audioThreadFunc(int index)
                             enclosurevol = enclosures.at(it.enclosure).volume;
                             enclosurehighpass = enclosures.at(it.enclosure).highpass;
                             enclosurelowpass = enclosures.at(it.enclosure).lowpass;
-                            if (it.previousEnclosureHighpass == -1)
-                            {
-                                it.previousEnclosureHighpass = enclosurehighpass;
-                            }
-                            if (it.previousEnclosureLowpass == -1)
-                            {
-                                it.previousEnclosureLowpass = enclosurelowpass;
-                            }
+                            lowpassFilter->calculate_coeffs(enclosurelowpass, SAMPLE_RATE);   // cut off everything above this frequency
+                            highpassFilter->calculate_coeffs(enclosurehighpass, SAMPLE_RATE); // cut off everything below this frequency
                         }
                         for (i = 0; i < FRAMES_PER_BUFFER; i++)
                         {
@@ -820,8 +812,6 @@ void audioThreadFunc(int index)
                                 val = (it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult;
                                 if (it.enclosure != "")
                                 {
-                                    lowpassFilter->calculate_coeffs((int)(((enclosurelowpass - it.previousEnclosureLowpass) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureLowpass, SAMPLE_RATE);     // cut off everything above this frequency
-                                    highpassFilter->calculate_coeffs((int)(((enclosurehighpass - it.previousEnclosureHighpass) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureHighpass, SAMPLE_RATE); // cut off everything below this frequency
                                     val = lowpassFilter->process(val);
                                     val = highpassFilter->process(val);
                                     val *= (((enclosurevol - it.previousEnclosureVol) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureVol;
@@ -839,8 +829,6 @@ void audioThreadFunc(int index)
                             }
                         }
                         it.previousEnclosureVol = enclosurevol;
-                        it.previousEnclosureHighpass = enclosurehighpass;
-                        it.previousEnclosureLowpass = enclosurelowpass;
                         it.pos += FRAMES_PER_BUFFER * pitch;
                     }
                 }
