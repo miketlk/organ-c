@@ -857,10 +857,6 @@ void windThreadFunc()
         {
             it.second.recalculate();
         }
-        for (auto &it : enclosures)
-        {
-            it.second.recalculate();
-        }
     }
 }
 
@@ -868,6 +864,10 @@ void tremThreadFunc()
 {
     while (!exit_thread_flag)
     {
+        for (auto &it : enclosures)
+        {
+            it.second.recalculate();
+        }
         for (auto &it : tremulants)
         {
             it.second.recalculate();
