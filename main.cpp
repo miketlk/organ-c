@@ -199,18 +199,19 @@ typedef struct
     void recalculate();
     void chooseValue(int input)
     {
-        targetValue = -1;
+        int output = -1;
         for (auto &it : stages)
         {
             if (input >= it.min && input <= it.max)
             {
-                targetValue = it.value;
+                output = it.value;
             }
         }
-        if (targetValue == -1)
+        if (output == -1)
         {
-            targetValue = input;
+            output = input;
         }
+        targetValue = output;
     };
 } enclosure;
 
@@ -298,33 +299,35 @@ typedef struct
     };
     void chooseSpeedValue(int input)
     {
-        speedTargetValue = -1;
+        int output = -1;
         for (auto &it : speedStages)
         {
             if (input >= it.min && input <= it.max)
             {
-                speedTargetValue = it.value;
+                output = it.value;
             }
         }
-        if (speedTargetValue == -1)
+        if (output == -1)
         {
-            speedTargetValue = input;
+            output = input;
         }
+        speedTargetValue = output;
     };
     void chooseDepthValue(int input)
     {
-        depthTargetValue = -1;
+        int output = -1;
         for (auto &it : depthStages)
         {
             if (input >= it.min && input <= it.max)
             {
-                depthTargetValue = it.value;
+                output = it.value;
             }
         }
-        if (depthTargetValue == -1)
+        if (output == -1)
         {
-            depthTargetValue = input;
+            output = input;
         }
+        depthTargetValue = output;
     };
     void on(std::string stopName)
     {
