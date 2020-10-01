@@ -64,6 +64,7 @@
             "maxVolume": 1.0,
             "minVolume": 0.0,
             "volumeLogFactor": 1.0,
+            "rate": 100,
             "stages": [
                 {
                     "max": 50,

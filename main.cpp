@@ -1295,6 +1295,7 @@ int main(void)
         enclosures[it["name"]].maxVolume = it["maxVolume"];
         enclosures[it["name"]].minVolume = it["minVolume"];
         enclosures[it["name"]].volumeLogFactor = it["volumeLogFactor"];
+        enclosures[it["name"]].rate = it["rate"];
         for (auto &si : it["stages"])
         {
             shoeStage newStage;
