@@ -191,22 +191,25 @@ typedef struct
     int midichannel;
     int midinote;
     int selectedValue = 127;
+    int targetValue = 127;
+    int rate = 100;
+    int rateIndex = 0;
     std::string enclosure = "";
     std::vector<shoeStage> stages;
     void recalculate();
     void chooseValue(int input)
     {
-        selectedValue = -1;
+        targetValue = -1;
         for (auto &it : stages)
         {
             if (input >= it.min && input <= it.max)
             {
-                selectedValue = it.value;
+                targetValue = it.value;
             }
         }
-        if (selectedValue == -1)
+        if (targetValue == -1)
         {
-            selectedValue = input;
+            targetValue = input;
         }
     };
 } enclosure;
@@ -866,6 +869,22 @@ void tremThreadFunc()
     {
         for (auto &it : enclosures)
         {
+            if (it.second.rateIndex == it.second.rate)
+            {
+                it.second.rateIndex = 0;
+                if (it.second.targetValue != it.second.selectedValue)
+                {
+                    if (it.second.targetValue > it.second.selectedValue)
+                    {
+                        it.second.selectedValue += 1;
+                    }
+                    else
+                    {
+                        it.second.selectedValue -= 1;
+                    }
+                }
+            }
+            it.second.rateIndex += 1;
             it.second.recalculate();
         }
         for (auto &it : tremulants)
