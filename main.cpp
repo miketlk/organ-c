@@ -192,8 +192,8 @@ typedef struct
     int midinote;
     int selectedValue = 127;
     int targetValue = 127;
-    int rate = 100;
-    int rateIndex = 0;
+    int stageRate = 100;
+    int stageRateIndex = 0;
     std::string enclosure = "";
     std::vector<shoeStage> stages;
     void recalculate();
@@ -261,9 +261,15 @@ typedef struct
     int speedMidichannel;
     int speedMidinote;
     int speedSelectedValue = 127;
+    int speedTargetValue = 127;
+    int speedStageRate = 100;
+    int speedStageRateIndex = 0;
     int depthMidichannel;
     int depthMidinote;
     int depthSelectedValue = 127;
+    int depthTargetValue = 127;
+    int depthStageRate = 100;
+    int depthStageRateIndex = 0;
     int index = 0;
     int frequency = 5000;
     double depth = -0.015;
@@ -292,32 +298,32 @@ typedef struct
     };
     void chooseSpeedValue(int input)
     {
-        speedSelectedValue = -1;
+        speedTargetValue = -1;
         for (auto &it : speedStages)
         {
             if (input >= it.min && input <= it.max)
             {
-                speedSelectedValue = it.value;
+                speedTargetValue = it.value;
             }
         }
-        if (speedSelectedValue == -1)
+        if (speedTargetValue == -1)
         {
-            speedSelectedValue = input;
+            speedTargetValue = input;
         }
     };
     void chooseDepthValue(int input)
     {
-        depthSelectedValue = -1;
+        depthTargetValue = -1;
         for (auto &it : depthStages)
         {
             if (input >= it.min && input <= it.max)
             {
-                depthSelectedValue = it.value;
+                depthTargetValue = it.value;
             }
         }
-        if (depthSelectedValue == -1)
+        if (depthTargetValue == -1)
         {
-            depthSelectedValue = input;
+            depthTargetValue = input;
         }
     };
     void on(std::string stopName)
@@ -869,9 +875,9 @@ void tremThreadFunc()
     {
         for (auto &it : enclosures)
         {
-            if (it.second.rateIndex == it.second.rate)
+            if (it.second.stageRateIndex == it.second.stageRate)
             {
-                it.second.rateIndex = 0;
+                it.second.stageRateIndex = 0;
                 if (it.second.targetValue != it.second.selectedValue)
                 {
                     if (it.second.targetValue > it.second.selectedValue)
@@ -884,11 +890,43 @@ void tremThreadFunc()
                     }
                 }
             }
-            it.second.rateIndex += 1;
+            it.second.stageRateIndex += 1;
             it.second.recalculate();
         }
         for (auto &it : tremulants)
         {
+            if (it.second.speedStageRateIndex == it.second.speedStageRate)
+            {
+                it.second.speedStageRateIndex = 0;
+                if (it.second.speedTargetValue != it.second.speedSelectedValue)
+                {
+                    if (it.second.speedTargetValue > it.second.speedSelectedValue)
+                    {
+                        it.second.speedSelectedValue += 1;
+                    }
+                    else
+                    {
+                        it.second.speedSelectedValue -= 1;
+                    }
+                }
+            }
+            it.second.speedStageRateIndex += 1;
+            if (it.second.depthStageRateIndex == it.second.depthStageRate)
+            {
+                it.second.depthStageRateIndex = 0;
+                if (it.second.depthTargetValue != it.second.depthSelectedValue)
+                {
+                    if (it.second.depthTargetValue > it.second.depthSelectedValue)
+                    {
+                        it.second.depthSelectedValue += 1;
+                    }
+                    else
+                    {
+                        it.second.depthSelectedValue -= 1;
+                    }
+                }
+            }
+            it.second.depthStageRateIndex += 1;
             it.second.recalculate();
         }
         std::this_thread::sleep_for(std::chrono::microseconds(10));
@@ -1161,6 +1199,8 @@ int main(void)
         tremulants[it["name"]].depthMidinote = it["depthMidinote"];
         tremulants[it["name"]].frequency = it["frequency"];
         tremulants[it["name"]].depth = it["depth"];
+        tremulants[it["name"]].speedStageRate = it["speedStageRate"];
+        tremulants[it["name"]].depthStageRate = it["depthStageRate"];
         for (auto &si : it["speedStages"])
         {
             shoeStage newStage;
@@ -1295,7 +1335,7 @@ int main(void)
         enclosures[it["name"]].maxVolume = it["maxVolume"];
         enclosures[it["name"]].minVolume = it["minVolume"];
         enclosures[it["name"]].volumeLogFactor = it["volumeLogFactor"];
-        enclosures[it["name"]].rate = it["rate"];
+        enclosures[it["name"]].stageRate = it["stageRate"];
         for (auto &si : it["stages"])
         {
             shoeStage newStage;

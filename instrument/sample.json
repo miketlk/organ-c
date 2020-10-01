@@ -89,6 +89,8 @@
             "depthMidinote": 6,
             "frequency": 5000,
             "depth": 0.015,
+            "speedStageRate": 100,
+            "depthStageRate": 100,
             "speedStages": [
                 {
                     "max": 50,
