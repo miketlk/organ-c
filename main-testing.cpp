@@ -20,6 +20,7 @@
 #include <math.h>
 #include <algorithm>
 #include <chrono>
+#include <boost/lockfree/queue.hpp>
 
 using json = nlohmann::json;
 
@@ -486,7 +487,7 @@ typedef struct
             }
         }
     }
-} pipe;
+} organPipe;
 
 typedef struct
 {
@@ -504,7 +505,7 @@ typedef struct
     int startNote = 0;
     int endNote = 127;
     int layoutMode = 0;
-    std::unordered_map<int, pipe> pipes;
+    std::unordered_map<int, organPipe> pipes;
     void play(int note, int velocity, std::string stopName)
     {
         if (pipes.find(note) != pipes.end())
@@ -677,6 +678,7 @@ void stop::on(int overrideActive)
 };
 
 std::vector<threadItem> audioThreads;
+boost::lockfree::queue<int> queue(128);
 
 void signalHandler(int signum)
 {
@@ -730,125 +732,10 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
 
 void audioThreadFunc(int index)
 {
-    unsigned long i;
-    double pitch;
-    int k = 0;
-    double j;
-    double fadeoutvol;
-    double fadeinvol;
-    double val;
-    double enclosurevol;
-    int enclosurehighpass;
-    int enclosurelowpass;
-    std::vector<double> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
-    std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
-
-    std::unique_ptr<SO_BUTTERWORTH_LPF> lowpassFilter(new SO_BUTTERWORTH_LPF);
-    std::unique_ptr<SO_BUTTERWORTH_HPF> highpassFilter(new SO_BUTTERWORTH_HPF);
-
     while (!exit_thread_flag)
     {
         if (audioThreads[index].fillBuffer == 1)
         {
-            for (i = 0; i < FRAMES_PER_BUFFER * NUM_CHANNELS; i++)
-            {
-                workingbuffer[i] = SAMPLE_SILENCE;
-            }
-            if (samples.size() > 0)
-            {
-                for (auto &it : samples)
-                {
-                    if (it.thread == index && it.playing == 1)
-                    {
-                        pitch = it.pitchMult;
-                        if (it.windchest != "")
-                        {
-                            pitch += windchests.at(it.windchest).pitchMult;
-                        }
-                        if (it.tremulant != "")
-                        {
-                            pitch += tremulants.at(it.tremulant).pitchMult;
-                        }
-                        fadeoutvol = 1.0;
-                        fadeinvol = 1.0;
-                        if (it.enclosure != "")
-                        {
-                            enclosurevol = enclosures.at(it.enclosure).volume;
-                            enclosurehighpass = enclosures.at(it.enclosure).highpass;
-                            enclosurelowpass = enclosures.at(it.enclosure).lowpass;
-                            lowpassFilter->calculate_coeffs(enclosurelowpass, SAMPLE_RATE);   // cut off everything above this frequency
-                            highpassFilter->calculate_coeffs(enclosurehighpass, SAMPLE_RATE); // cut off everything below this frequency
-                        }
-                        for (i = 0; i < FRAMES_PER_BUFFER; i++)
-                        {
-                            j = it.pos + i * pitch;
-                            k = (int)j;
-                            if (k > it.loopEnd - 2 - pitch)
-                            {
-                                if (it.loops == 1)
-                                {
-                                    it.pos = it.loopStart + pitch;
-                                }
-                                else
-                                {
-                                    it.playing = 0;
-                                }
-                            }
-                            if (it.playing == 1)
-                            {
-                                if (it.fadeout == 1)
-                                {
-                                    if (it.fadeoutPos == FADEOUT_LENGTH)
-                                    {
-                                        it.playing = 0;
-                                        it.fadeout = 0;
-                                    }
-                                    else
-                                    {
-                                        fadeoutvol = exp(1 * (it.fadeoutPos / FADEOUT_LENGTH)) * (1 - (it.fadeoutPos / FADEOUT_LENGTH));
-                                        it.fadeoutPos += 1;
-                                    }
-                                }
-                                if (it.fadein == 1)
-                                {
-                                    if (it.fadeinPos == FADEIN_LENGTH)
-                                    {
-                                        it.fadein = 0;
-                                    }
-                                    else
-                                    {
-                                        fadeinvol = exp(-1 * ((it.fadeinPos / FADEIN_LENGTH) - 1)) * (it.fadeinPos / FADEIN_LENGTH);
-                                        it.fadeinPos += 1;
-                                    }
-                                }
-                                val = (it.data.at(k) + (j - k) * (it.data.at(k + 1) - it.data.at(k))) * it.volMult;
-                                if (it.enclosure != "")
-                                {
-                                    val = lowpassFilter->process(val);
-                                    val = highpassFilter->process(val);
-                                    val *= (((enclosurevol - it.previousEnclosureVol) / FRAMES_PER_BUFFER) * i) + it.previousEnclosureVol;
-                                }
-                                val = val * fadeoutvol * fadeinvol;
-                                if (it.channelTwo != -1)
-                                {
-                                    workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += (val * sin(d2r(it.panAngle))) * GLOBAL_VOL;
-                                    workingbuffer[(NUM_CHANNELS * i) + it.channelTwo] += (val * cos(d2r(it.panAngle))) * GLOBAL_VOL;
-                                }
-                                else
-                                {
-                                    workingbuffer[(NUM_CHANNELS * i) + it.channelOne] += val * GLOBAL_VOL;
-                                }
-                            }
-                        }
-                        it.previousEnclosureVol = enclosurevol;
-                        it.pos += FRAMES_PER_BUFFER * pitch;
-                    }
-                }
-            }
-            for (i = 0; i < FRAMES_PER_BUFFER * NUM_CHANNELS; i++)
-            {
-                audioThreads[index].buffer[i] = workingbuffer[i];
-            }
             audioThreads[index].fillBuffer = 0;
         }
     }
@@ -1385,7 +1272,7 @@ int main(void)
         double panAngleItem = 45.0;
         for (auto &ipe : rankConfig)
         {
-            pipe newPipe;
+            organPipe newPipe;
             if (ipe["windchest"] != "")
             {
                 windchestItem = ipe["windchest"];
@@ -1554,7 +1441,7 @@ int main(void)
         }
     }
 
-    int selectedThread = 0;
+    /*int selectedThread = 0;
     for (auto &it : samples)
     {
         if (selectedThread >= available_threads)
@@ -1563,7 +1450,7 @@ int main(void)
         }
         it.thread = selectedThread;
         selectedThread += 1;
-    }
+    }*/
 
     for (auto &it : enclosures)
     {
