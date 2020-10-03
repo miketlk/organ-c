@@ -1,0 +1,1026 @@
+{
+    "keyboards": [
+        {
+            "name": "great",
+            "midichannel": 1
+        }
+    ],
+    "stops": [
+        {
+            "name": "great-principal",
+            "keyboard": "great",
+            "midichannel": 7,
+            "midinote": 60,
+            "active": 1,
+            "ranks": [],
+            "tremulants": [],
+            "onNoises": [
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                },
+                {
+                    "file": "00.wav",
+                    "loops": 0,
+                    "channelOne": 0,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                }
+            ],
+            "offNoises": []
+        }
+    ],
+    "enclosures": [],
+    "windchests": [],
+    "tremulants": [],
+    "ranks": []
+}

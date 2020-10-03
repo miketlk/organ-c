@@ -5,5 +5,5 @@
     "sampleRate": 96000,
     "framesPerBuffer": 512,
     "globalVol": 0.5,
-    "instrumentConfig": "config.json"
+    "instrumentConfig": "test-config.json"
 }
