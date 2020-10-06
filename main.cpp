@@ -26,14 +26,14 @@ using json = nlohmann::json;
 static unsigned long SAMPLE_RATE = 48000;
 static unsigned long NUM_CHANNELS = 2;
 static unsigned long FRAMES_PER_BUFFER = 256;
-static double GLOBAL_VOL = 1.0;
+static float GLOBAL_VOL = 1.0;
 #define SAMPLE_SILENCE (0.0)
 #define FADEOUT_LENGTH (2000)
 #define FADEIN_LENGTH (4500)
 
-static double d2r(double d)
+static float d2r(float d)
 {
-    return (d / 180.0) * ((double)M_PI);
+    return (d / 180.0) * ((float)M_PI);
 }
 
 int closest(std::vector<int> vec, int value)
@@ -56,10 +56,10 @@ int closest(std::vector<int> vec, int value)
     return output;
 }
 
-double closest(std::vector<double> vec, int value)
+float closest(std::vector<float> vec, int value)
 {
-    double output;
-    std::vector<double>::iterator it;
+    float output;
+    std::vector<float>::iterator it;
     it = lower_bound(vec.begin(), vec.end(), value);
     if (it == vec.begin())
     {
@@ -86,13 +86,13 @@ std::atomic<bool> exit_thread_flag{false};
 typedef struct
 {
     std::thread thread;
-    std::vector<double> buffer;
+    std::vector<float> buffer;
     int fillBuffer = 1;
 } threadItem;
 
 typedef struct
 {
-    std::vector<double> data;
+    std::vector<float> data;
     int pos = 0;
     int playing = 0;
     int thread = 0;
@@ -101,17 +101,17 @@ typedef struct
     int loopEnd = 0;
     int channelOne = 0;
     int channelTwo = -1;
-    double pitchMult = 1.0;
-    double volMult = 1.0;
+    float pitchMult = 1.0;
+    float volMult = 1.0;
     std::string enclosure = "";
     std::string windchest = "";
     std::string tremulant = "";
-    double previousEnclosureVol = 1.0;
+    float previousEnclosureVol = 1.0;
     int fadeout = 0;
-    double fadeoutPos = 0;
+    float fadeoutPos = 0;
     int fadein = 0;
-    double fadeinPos = 0;
-    double panAngle = 45.0;
+    float fadeinPos = 0;
+    float panAngle = 45.0;
     std::string filename = "";
 } sample;
 
@@ -176,18 +176,18 @@ typedef struct
 typedef struct
 {
     std::string name;
-    double maxHighpass;
-    double minHighpass;
-    double highpassLogFactor = 1.0;
+    float maxHighpass;
+    float minHighpass;
+    float highpassLogFactor = 1.0;
     int highpass = 100;
-    double maxLowpass;
-    double minLowpass;
-    double lowpassLogFactor = 1.0;
+    float maxLowpass;
+    float minLowpass;
+    float lowpassLogFactor = 1.0;
     int lowpass = 5000;
-    double maxVolume;
-    double minVolume;
-    double volumeLogFactor = 1.0;
-    double volume = 1.0;
+    float maxVolume;
+    float minVolume;
+    float volumeLogFactor = 1.0;
+    float volume = 1.0;
     int midichannel;
     int midinote;
     int selectedValue = 127;
@@ -245,7 +245,7 @@ void enclosure::recalculate()
 typedef struct
 {
     std::string name;
-    double pitchMult = 0.0;
+    float pitchMult = 0.0;
     void recalculate()
     {
         pitchMult = 0.0;
@@ -258,7 +258,7 @@ typedef struct
 {
     std::string name;
     int active = 0;
-    double pitchMult = 0.0;
+    float pitchMult = 0.0;
     int speedMidichannel;
     int speedMidinote;
     int speedSelectedValue = 127;
@@ -273,7 +273,7 @@ typedef struct
     int depthStageRateIndex = 0;
     int index = 0;
     int frequency = 5000;
-    double depth = -0.015;
+    float depth = -0.015;
     std::vector<shoeStage> speedStages;
     std::vector<shoeStage> depthStages;
     std::vector<sampleItem> onNoises;
@@ -289,7 +289,7 @@ typedef struct
             {
                 index = 0;
             }
-            pitchMult = sin(((double)index / (double)frequency) * M_PI * 2.) * depth + (depth / 2);
+            pitchMult = sin(((float)index / (float)frequency) * M_PI * 2.) * depth + (depth / 2);
             index += 1;
         }
         else
@@ -383,19 +383,19 @@ bool sortfunction(int i, int j) { return (i < j); }
 
 typedef struct
 {
-    double pitchMult = 1.0;
-    double volMult = 1.0;
+    float pitchMult = 1.0;
+    float volMult = 1.0;
     std::string enclosure = "";
     std::string windchest = "";
     std::string tremulant = "";
-    double windWeight = 0.0;
+    float windWeight = 0.0;
     int channelOne = -1;
     int channelTwo = -1;
-    double panAngle = -1.0;
+    float panAngle = -1.0;
     sampleItem *playingAttack = NULL;
     sampleItem *playingRelease = NULL;
-    std::unordered_map<int, std::unordered_map<double, std::vector<sampleItem>>> attacks;
-    std::unordered_map<int, std::unordered_map<double, std::vector<sampleItem>>> releases;
+    std::unordered_map<int, std::unordered_map<float, std::vector<sampleItem>>> attacks;
+    std::unordered_map<int, std::unordered_map<float, std::vector<sampleItem>>> releases;
     int playing = 0;
     std::vector<std::string> playingFor;
     std::chrono::system_clock::time_point lastPlayed = std::chrono::system_clock::now();
@@ -411,7 +411,7 @@ typedef struct
             lastPlayed = std::chrono::system_clock::now();
 
             std::vector<int> velKeys;
-            std::vector<double> timeKeys;
+            std::vector<float> timeKeys;
             for (auto kv : attacks)
             {
                 velKeys.push_back(kv.first);
@@ -426,7 +426,7 @@ typedef struct
                 }
                 std::sort(timeKeys.begin(), timeKeys.end(), sortfunction);
                 std::chrono::system_clock::time_point newTime = std::chrono::system_clock::now();
-                double selectedTime = closest(timeKeys, std::chrono::duration_cast<std::chrono::milliseconds>(newTime - lastStopped).count());
+                float selectedTime = closest(timeKeys, std::chrono::duration_cast<std::chrono::milliseconds>(newTime - lastStopped).count());
                 if (selectedTime != -1)
                 {
                     int Random;
@@ -453,7 +453,7 @@ typedef struct
             {
 
                 std::vector<int> velKeys;
-                std::vector<double> timeKeys;
+                std::vector<float> timeKeys;
                 for (auto kv : releases)
                 {
                     velKeys.push_back(kv.first);
@@ -468,7 +468,7 @@ typedef struct
                     }
                     std::sort(timeKeys.begin(), timeKeys.end(), sortfunction);
                     std::chrono::system_clock::time_point newTime = std::chrono::system_clock::now();
-                    double selectedTime = closest(timeKeys, std::chrono::duration_cast<std::chrono::milliseconds>(newTime - lastPlayed).count());
+                    float selectedTime = closest(timeKeys, std::chrono::duration_cast<std::chrono::milliseconds>(newTime - lastPlayed).count());
                     if (selectedTime != -1)
                     {
                         int Random;
@@ -491,8 +491,8 @@ typedef struct
 typedef struct
 {
     std::string name;
-    double pitchMult = 1.0;
-    double volMult = 1.0;
+    float pitchMult = 1.0;
+    float volMult = 1.0;
     std::string enclosure = "";
     std::string windchest = "";
     std::string tremulant = "";
@@ -700,8 +700,8 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
 
     long unsigned int frames = NUM_CHANNELS * FRAMES_PER_BUFFER;
 
-    std::vector<double> inbuffer(frames);
-    std::vector<double> outmainbuffer(frames);
+    std::vector<float> inbuffer(frames);
+    std::vector<float> outmainbuffer(frames);
     std::fill(outmainbuffer.begin(), outmainbuffer.end(), SAMPLE_SILENCE);
 
     for (j = 0; j < audioThreads.size(); j++)
@@ -731,16 +731,16 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
 void audioThreadFunc(int index)
 {
     unsigned long i;
-    double pitch;
+    float pitch;
     int k = 0;
-    double j;
-    double fadeoutvol;
-    double fadeinvol;
-    double val;
-    double enclosurevol;
+    float j;
+    float fadeoutvol;
+    float fadeinvol;
+    float val;
+    float enclosurevol;
     int enclosurehighpass;
     int enclosurelowpass;
-    std::vector<double> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
+    std::vector<float> workingbuffer(NUM_CHANNELS * FRAMES_PER_BUFFER);
     std::fill(workingbuffer.begin(), workingbuffer.end(), SAMPLE_SILENCE);
 
     std::unique_ptr<SO_BUTTERWORTH_LPF> lowpassFilter(new SO_BUTTERWORTH_LPF);
@@ -1020,9 +1020,9 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
     }
 }
 
-double calculatePanAngle(int note, int startNote, int endNote, int layoutMode)
+float calculatePanAngle(int note, int startNote, int endNote, int layoutMode)
 {
-    double angle = 45.0;
+    float angle = 45.0;
     if (layoutMode == 0)
     {
         angle = (90.0 / (endNote - startNote)) * (note - startNote);
@@ -1114,13 +1114,13 @@ int main(void)
             sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
 
             nframes = inFileInfo.frames * inFileInfo.channels;
-            double data[nframes];
+            float data[nframes];
 
-            sf_read_double(wf, data, nframes);
+            sf_read_float(wf, data, nframes);
 
             sf_close(wf);
 
-            std::vector<double> newbuffer(data, data + nframes);
+            std::vector<float> newbuffer(data, data + nframes);
             newSample.data = newbuffer;
             newSample.loopEnd = nframes;
 
@@ -1161,13 +1161,13 @@ int main(void)
             sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
 
             nframes = inFileInfo.frames * inFileInfo.channels;
-            double data[nframes];
+            float data[nframes];
 
-            sf_read_double(wf, data, nframes);
+            sf_read_float(wf, data, nframes);
 
             sf_close(wf);
 
-            std::vector<double> newbuffer(data, data + nframes);
+            std::vector<float> newbuffer(data, data + nframes);
             newSample.data = newbuffer;
             newSample.loopEnd = nframes;
 
@@ -1245,13 +1245,13 @@ int main(void)
             }
 
             nframes = inFileInfo.frames * inFileInfo.channels;
-            double data[nframes];
+            float data[nframes];
 
-            sf_read_double(wf, data, nframes);
+            sf_read_float(wf, data, nframes);
 
             sf_close(wf);
 
-            std::vector<double> newbuffer(data, data + nframes);
+            std::vector<float> newbuffer(data, data + nframes);
             newSample.data = newbuffer;
             newSample.loopEnd = nframes;
 
@@ -1292,13 +1292,13 @@ int main(void)
             sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
 
             nframes = inFileInfo.frames * inFileInfo.channels;
-            double data[nframes];
+            float data[nframes];
 
-            sf_read_double(wf, data, nframes);
+            sf_read_float(wf, data, nframes);
 
             sf_close(wf);
 
-            std::vector<double> newbuffer(data, data + nframes);
+            std::vector<float> newbuffer(data, data + nframes);
             newSample.data = newbuffer;
             newSample.loopEnd = nframes;
 
@@ -1382,7 +1382,7 @@ int main(void)
         std::string windchestItem = "";
         int channelOneItem = 0;
         int channelTwoItem = -1;
-        double panAngleItem = 45.0;
+        float panAngleItem = 45.0;
         for (auto &ipe : rankConfig)
         {
             pipe newPipe;
@@ -1463,8 +1463,8 @@ int main(void)
                 newPipeSample.enclosure = enclosureItem;
                 newPipeSample.tremulant = tremulantItem;
                 newPipeSample.loops = aElement["loops"];
-                newPipeSample.pitchMult = aElement["pitchMult"].get<double>() * newPipe.pitchMult * ranks[it["name"]].pitchMult;
-                newPipeSample.volMult = aElement["volMult"].get<double>() * newPipe.volMult * ranks[it["name"]].volMult;
+                newPipeSample.pitchMult = aElement["pitchMult"].get<float>() * newPipe.pitchMult * ranks[it["name"]].pitchMult;
+                newPipeSample.volMult = aElement["volMult"].get<float>() * newPipe.volMult * ranks[it["name"]].volMult;
                 newPipeSample.channelOne = channelOneItem;
                 newPipeSample.channelTwo = channelTwoItem;
                 newPipeSample.panAngle = panAngleItem;
@@ -1474,13 +1474,13 @@ int main(void)
                 sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
 
                 nframes = inFileInfo.frames * inFileInfo.channels;
-                double data[nframes];
+                float data[nframes];
 
-                sf_read_double(wf, data, nframes);
+                sf_read_float(wf, data, nframes);
 
                 sf_close(wf);
 
-                std::vector<double> newbuffer(data, data + nframes);
+                std::vector<float> newbuffer(data, data + nframes);
                 newPipeSample.data = newbuffer;
                 newPipeSample.loopEnd = nframes;
 
@@ -1510,8 +1510,8 @@ int main(void)
                 newPipeSample.enclosure = enclosureItem;
                 newPipeSample.tremulant = tremulantItem;
                 newPipeSample.loops = aElement["loops"];
-                newPipeSample.pitchMult = aElement["pitchMult"].get<double>() * newPipe.pitchMult * ranks[it["name"]].pitchMult;
-                newPipeSample.volMult = aElement["volMult"].get<double>() * newPipe.volMult * ranks[it["name"]].volMult;
+                newPipeSample.pitchMult = aElement["pitchMult"].get<float>() * newPipe.pitchMult * ranks[it["name"]].pitchMult;
+                newPipeSample.volMult = aElement["volMult"].get<float>() * newPipe.volMult * ranks[it["name"]].volMult;
                 newPipeSample.channelOne = channelOneItem;
                 newPipeSample.channelTwo = channelTwoItem;
                 newPipeSample.panAngle = panAngleItem;
@@ -1522,13 +1522,13 @@ int main(void)
                 sf_command(wf, SFC_GET_INSTRUMENT, &inst, sizeof(inst));
 
                 nframes = inFileInfo.frames * inFileInfo.channels;
-                double data[nframes];
+                float data[nframes];
 
-                sf_read_double(wf, data, nframes);
+                sf_read_float(wf, data, nframes);
 
                 sf_close(wf);
 
-                std::vector<double> newbuffer(data, data + nframes);
+                std::vector<float> newbuffer(data, data + nframes);
                 newPipeSample.data = newbuffer;
                 newPipeSample.loopEnd = nframes;
 
@@ -1581,7 +1581,7 @@ int main(void)
     for (int i = 0; i < available_threads; i++)
     {
         audioThreads.push_back(threadItem());
-        std::vector<double> newbuffer(FRAMES_PER_BUFFER * NUM_CHANNELS);
+        std::vector<float> newbuffer(FRAMES_PER_BUFFER * NUM_CHANNELS);
         audioThreads[i].buffer = newbuffer;
         std::fill(audioThreads[i].buffer.begin(), audioThreads[i].buffer.end(), SAMPLE_SILENCE);
         audioThreads[i].thread = std::thread(audioThreadFunc, i);
