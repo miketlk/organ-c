@@ -23,7 +23,7 @@
 
 using json = nlohmann::json;
 
-static unsigned long SAMPLE_RATE = 48000;
+static unsigned long SAMPLE_RATE = 96000;
 static unsigned long NUM_CHANNELS = 2;
 static unsigned long FRAMES_PER_BUFFER = 256;
 static float GLOBAL_VOL = 1.0;
