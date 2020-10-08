@@ -113,11 +113,22 @@
                     "channelTwo": -1,
                     "panAngle": 45.0,
                     "pitchMult": 1.0,
-                    "volMult": 5.0,
+                    "volMult": 1.0,
                     "enclosure": ""
                 }
             ],
-            "offNoises": []
+            "offNoises": [
+                {
+                    "file": "04.wav",
+                    "loops": 1,
+                    "channelOne": 1,
+                    "channelTwo": -1,
+                    "panAngle": 45.0,
+                    "pitchMult": 1.0,
+                    "volMult": 1.0,
+                    "enclosure": ""
+                }
+            ]
         }
     ],
     "ranks": [
