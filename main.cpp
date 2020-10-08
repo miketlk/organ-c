@@ -23,6 +23,7 @@
 
 using json = nlohmann::json;
 
+// Set up global sound output settings
 static unsigned long SAMPLE_RATE = 96000;
 static unsigned long NUM_CHANNELS = 2;
 static unsigned long FRAMES_PER_BUFFER = 256;
@@ -31,11 +32,13 @@ static float GLOBAL_VOL = 1.0;
 #define FADEOUT_LENGTH (2000)
 #define FADEIN_LENGTH (4500)
 
+// Degress to radians
 static float d2r(float d)
 {
     return (d / 180.0) * ((float)M_PI);
 }
 
+// Find the closest int in a vector
 int closest(std::vector<int> vec, int value)
 {
     int output;
@@ -56,6 +59,7 @@ int closest(std::vector<int> vec, int value)
     return output;
 }
 
+// Finmd the closest float in a vector
 float closest(std::vector<float> vec, int value)
 {
     float output;
@@ -76,13 +80,16 @@ float closest(std::vector<float> vec, int value)
     return output;
 }
 
+// Flip a number in a range
 int flip(int num, int min, int max)
 {
     return (max + min) - num;
 }
 
+// Flag to tell the threads to keep running
 std::atomic<bool> exit_thread_flag{false};
 
+// A thread item holds the thread and its audio buffer to be merged into the total output
 typedef struct
 {
     std::thread thread;
@@ -90,6 +97,7 @@ typedef struct
     int fillBuffer = 1;
 } threadItem;
 
+// The actual audio data, one for every file, contains the wav data and any other playback variables
 typedef struct
 {
     std::vector<float> data;
@@ -115,6 +123,7 @@ typedef struct
     std::string filename = "";
 } sample;
 
+// Vector to hold the samples
 std::vector<sample> samples;
 
 typedef struct
@@ -123,6 +132,7 @@ typedef struct
     int end;
 } loop;
 
+// Sample item holds the sample loops and ultimnately sets the sample playing or not
 typedef struct
 {
     int selectedSample;
@@ -173,6 +183,7 @@ typedef struct
     int value;
 } shoeStage;
 
+// Enclosure affects the volume, highpass, and lowpass on the samples depending on its position 0-127
 typedef struct
 {
     float maxHighpass;
@@ -216,6 +227,7 @@ typedef struct
 
 std::unordered_map<std::string, enclosure> enclosures;
 
+// Calculate the enclosure values
 void enclosure::recalculate()
 {
     /*if (maxVolume > minVolume) {
@@ -252,6 +264,7 @@ typedef struct
 
 std::unordered_map<std::string, windchest> windchests;
 
+// Tremulant affects the pitch of the samples in the form of a wave
 typedef struct
 {
     int active = 0;
@@ -378,6 +391,7 @@ std::unordered_map<std::string, tremulant> tremulants;
 
 bool sortfunction(int i, int j) { return (i < j); }
 
+// A pipe consists of many samples and it selects which one to play depending on the velocity and time since last attack/release
 typedef struct
 {
     float pitchMult = 1.0;
@@ -485,6 +499,7 @@ typedef struct
     }
 } pipe;
 
+// A rank holds mulany pipes, normally 61-73 but can be all the way up to 128
 typedef struct
 {
     float pitchMult = 1.0;
@@ -527,6 +542,7 @@ typedef struct
     int offset;
 } rankMapping;
 
+// A stop controls which ranks is allowed to play
 typedef struct
 {
     int midichannel;
@@ -604,6 +620,7 @@ typedef struct
 
 std::unordered_map<std::string, stop> stops;
 
+// Keyboard recieves the note on and off and then tells the stops to play the notes
 typedef struct
 {
     std::string name;
@@ -700,6 +717,7 @@ static int paAudioCallback(const void *inputBuffer, void *outputBuffer,
     std::vector<float> outmainbuffer(frames);
     std::fill(outmainbuffer.begin(), outmainbuffer.end(), SAMPLE_SILENCE);
 
+    // For each ot the audio threads, make a copy of their buffer to add to the whole and then allow them to start generating the next buffer
     for (j = 0; j < audioThreads.size(); j++)
     {
         if (audioThreads[j].fillBuffer == 0)
@@ -850,6 +868,7 @@ void audioThreadFunc(int index)
     }
 }
 
+// The voicing thread holds the web interface and controls
 void voicingThreadFunc()
 {
     while (!exit_thread_flag)
@@ -857,6 +876,7 @@ void voicingThreadFunc()
     }
 }
 
+// the wind thread simulation the windchests
 void windThreadFunc()
 {
     while (!exit_thread_flag)
@@ -868,6 +888,7 @@ void windThreadFunc()
     }
 }
 
+// The threm thread simulated the position of the trems and enclosures
 void tremThreadFunc()
 {
     while (!exit_thread_flag)
@@ -932,6 +953,7 @@ void tremThreadFunc()
     }
 }
 
+// Receive the midi messages and set the required values
 void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *userData)
 {
     int messagetype;
@@ -1019,11 +1041,11 @@ void MidiCallback(double deltatime, std::vector<unsigned char> *message, void *u
 float calculatePanAngle(int note, int startNote, int endNote, int layoutMode)
 {
     float angle = 45.0;
-    if (layoutMode == 0)
+    if (layoutMode == 0) // left to right smallest to largest
     {
         angle = (90.0 / (endNote - startNote)) * (note - startNote);
     }
-    else if (layoutMode == 1)
+    else if (layoutMode == 1) // right to left smallest to largest
     {
         angle = (90.0 / (endNote - startNote)) * (flip(note, startNote, endNote) - startNote);
     }
@@ -1034,7 +1056,7 @@ int main(void)
 {
     signal(2, signalHandler); // SIGINT
     const auto processor_count = std::thread::hardware_concurrency();
-    int available_threads = processor_count - 8;
+    int available_threads = processor_count - 8; // Total number of processors minus the number of utility threads needed for this application, plus 2 threads to leave for the system
     //std::cout << available_threads << std::endl;
 
     std::ifstream iis("config.json");
@@ -1544,6 +1566,7 @@ int main(void)
         }
     }
 
+    // Assign which samples will be processed by which threads
     int selectedThread = 0;
     for (auto &it : samples)
     {
@@ -1568,6 +1591,7 @@ int main(void)
         }
     }
 
+    // Generated the required number of audio threads
     for (int i = 0; i < available_threads; i++)
     {
         audioThreads.push_back(threadItem());
