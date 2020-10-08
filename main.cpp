@@ -175,7 +175,6 @@ typedef struct
 
 typedef struct
 {
-    std::string name;
     float maxHighpass;
     float minHighpass;
     float highpassLogFactor = 1.0;
@@ -244,7 +243,6 @@ void enclosure::recalculate()
 
 typedef struct
 {
-    std::string name;
     float pitchMult = 0.0;
     void recalculate()
     {
@@ -256,7 +254,6 @@ std::unordered_map<std::string, windchest> windchests;
 
 typedef struct
 {
-    std::string name;
     int active = 0;
     float pitchMult = 0.0;
     int speedMidichannel;
@@ -490,7 +487,6 @@ typedef struct
 
 typedef struct
 {
-    std::string name;
     float pitchMult = 1.0;
     float volMult = 1.0;
     std::string enclosure = "";
@@ -1065,14 +1061,12 @@ int main(void)
     for (auto &it : config["keyboards"])
     {
         keyboards[it["name"]] = keyboard();
-        keyboards[it["name"]].name = it["name"];
         keyboards[it["name"]].midichannel = it["midichannel"];
     }
 
     for (auto &it : config["stops"])
     {
         stops[it["name"]] = stop();
-        stops[it["name"]].name = it["name"];
         stops[it["name"]].keyboard = it["keyboard"];
         stops[it["name"]].midichannel = it["midichannel"];
         stops[it["name"]].midinote = it["midinote"];
@@ -1195,7 +1189,6 @@ int main(void)
     {
         tremulants[it["name"]] = tremulant();
         tremulants[it["name"]].active = it["active"];
-        tremulants[it["name"]].name = it["name"];
         tremulants[it["name"]].speedMidichannel = it["speedMidichannel"];
         tremulants[it["name"]].speedMidinote = it["speedMidinote"];
         tremulants[it["name"]].depthMidichannel = it["depthMidichannel"];
@@ -1325,7 +1318,6 @@ int main(void)
     for (auto &it : config["enclosures"])
     {
         enclosures[it["name"]] = enclosure();
-        enclosures[it["name"]].name = it["name"];
         enclosures[it["name"]].midichannel = it["midichannel"];
         enclosures[it["name"]].midinote = it["midinote"];
         enclosures[it["name"]].enclosure = it["enclosure"];
@@ -1352,13 +1344,11 @@ int main(void)
     for (auto &it : config["windchests"])
     {
         windchests[it["name"]] = windchest();
-        windchests[it["name"]].name = it["name"];
     }
 
     for (auto &it : config["ranks"])
     {
         ranks[it["name"]] = rank();
-        ranks[it["name"]].name = it["name"];
         ranks[it["name"]].pitchMult = it["pitchMult"];
         ranks[it["name"]].volMult = it["volMult"];
         ranks[it["name"]].enclosure = it["enclosure"];
